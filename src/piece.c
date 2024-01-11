@@ -64,6 +64,16 @@ void PieceDraw(Piece *piece, Vector2 screenPosition) {
   }
 }
 
+void PieceDrawGhost(Piece *piece, Vector2 screenPosition) {
+  for (int i = 0; i < 4; i++) {
+    const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
+    Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
+    Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN), screenPosition);
+    Rectangle rect = {blockPositionOnScreen.x, blockPositionOnScreen.y, BLOCK_LEN, BLOCK_LEN};
+    DrawRectangleLinesEx(rect, 2, piece->tetromino->color);
+  }
+}
+
 void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[(piece->rotationIndex + 1) % 4];

@@ -13,6 +13,9 @@ void GameUpdate(GameState *state) {
   if (IsKeyPressed(KEY_R)) {
     GameReset(state);
   }
+  if (IsKeyPressed(KEY_E)) {
+    state->isQOLMode = !state->isQOLMode;
+  }
   if (IsKeyPressed(KEY_SPACE)) {
     state->isPaused = !state->isPaused;
   }
@@ -21,6 +24,26 @@ void GameUpdate(GameState *state) {
   }
   state->time += GetFrameTime();
   UpdateMusicStream(state->music);
+  if (IsKeyPressedRepeat(KEY_X) || IsKeyPressed(KEY_X)) {
+    PieceRotateClockwise(&state->currentPiece, state->board);
+  }
+  if (IsKeyPressedRepeat(KEY_Z) || IsKeyPressed(KEY_Z)) {
+    PieceRotateCounterClockwise(&state->currentPiece, state->board);
+  }
+  if (IsKeyPressedRepeat(KEY_LEFT) || IsKeyPressed(KEY_LEFT)) {
+    PieceMoveLeft(&state->currentPiece, state->board);
+  }
+  if (IsKeyPressedRepeat(KEY_RIGHT) || IsKeyPressed(KEY_RIGHT)) {
+    PieceMoveRight(&state->currentPiece, state->board);
+  }
+  if (IsKeyPressedRepeat(KEY_DOWN) || IsKeyPressed(KEY_DOWN)) {
+    state->time = GRAVITY_TIME;
+  }
+  if (IsKeyPressed(KEY_UP) && state->isQOLMode) {
+    while (!PieceMoveDown(&state->currentPiece, state->board))
+      ;
+    state->time = GRAVITY_TIME;
+  }
   if (state->time >= GRAVITY_TIME) {
     bool reachedGround = PieceMoveDown(&state->currentPiece, state->board);
     if (reachedGround) {
@@ -49,6 +72,15 @@ void GameUpdate(GameState *state) {
           }
         }
       }
+      for (int i = 0; i < 4; i++) {
+        const PieceConfiguration *blocks = &state->nextPiece.tetromino->rotations[state->nextPiece.rotationIndex];
+        Vector2 blockPosition = Vector2Add(blocks->points[i], state->nextPiece.position);
+        blockPosition.x += 1;
+        if (state->board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+          GameReset(state);
+          return;
+        }
+      }
       state->currentPiece = state->nextPiece;
       state->currentPiece.position = INITIAL_BOARD_POSITION;
       state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
@@ -56,21 +88,6 @@ void GameUpdate(GameState *state) {
     state->time = 0;
   }
   // TODO: controls feel funky
-  if (IsKeyPressedRepeat(KEY_X) || IsKeyPressed(KEY_X)) {
-    PieceRotateClockwise(&state->currentPiece, state->board);
-  }
-  if (IsKeyPressedRepeat(KEY_Z) || IsKeyPressed(KEY_Z)) {
-    PieceRotateCounterClockwise(&state->currentPiece, state->board);
-  }
-  if (IsKeyPressedRepeat(KEY_LEFT) || IsKeyPressed(KEY_LEFT)) {
-    PieceMoveLeft(&state->currentPiece, state->board);
-  }
-  if (IsKeyPressedRepeat(KEY_RIGHT) || IsKeyPressed(KEY_RIGHT)) {
-    PieceMoveRight(&state->currentPiece, state->board);
-  }
-  if (IsKeyPressedRepeat(KEY_DOWN) || IsKeyPressed(KEY_DOWN)) {
-    state->time = GRAVITY_TIME;
-  }
 }
 
 void GameDraw(GameState *state) {
@@ -84,9 +101,16 @@ void GameDraw(GameState *state) {
   GameDrawBoard(state->board, (Vector2){playfield.x, playfield.y});
   DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
   EndScissorMode();
+  if (state->isQOLMode) {
+    Piece ghostPiece = state->currentPiece;
+    while (!PieceMoveDown(&ghostPiece, state->board))
+      ;
+    PieceDrawGhost(&ghostPiece, (Vector2){playfield.x, playfield.y});
+  }
   Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
   PieceDraw(&state->nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
   DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
+
   EndDrawing();
 }
 
@@ -110,6 +134,7 @@ static void GameReset(GameState *state) {
   state->currentPiece.position = INITIAL_BOARD_POSITION;
   state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
   state->time = 0;
+  state->isQOLMode = false;
   SeekMusicStream(state->music, 0.0f);
 }
 

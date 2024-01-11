@@ -42,6 +42,7 @@ typedef struct {
 typedef struct {
   Block board[ROWS][COLUMNS];
   bool isPaused;
+  bool isQOLMode;
   Piece currentPiece;
   Piece nextPiece;
   float time;
