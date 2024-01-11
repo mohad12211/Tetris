@@ -6,7 +6,6 @@
 typedef struct {
   Block board[ROWS][COLUMNS];
   bool isPaused;
-  const PieceType *previousPieceType;
   Piece currentPiece;
   Piece nextPiece;
   float time;

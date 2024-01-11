@@ -45,6 +45,6 @@ void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]);
 void PieceMoveLeft(Piece *piece, Block board[ROWS][COLUMNS]);
 void PieceMoveRight(Piece *piece, Block board[ROWS][COLUMNS]);
 bool PieceMoveDown(Piece *piece, Block board[ROWS][COLUMNS]);
-Piece PieceGetRandom(void);
+Piece PieceGetRandom(const PieceType *previousPieceType);
 
 #endif // PIECE_H

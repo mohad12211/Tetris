@@ -46,7 +46,6 @@ const PieceType tetrominoes[] = {
       {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}},
       {{{2, 2}, {2, 3}, {3, 3}, {1, 2}}},
       {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}}}},
-
 };
 
 void PieceDraw(Piece *piece, Vector2 screenPosition) {
@@ -118,11 +117,10 @@ bool PieceMoveDown(Piece *piece, Block board[ROWS][COLUMNS]) {
   return false;
 }
 
-Piece PieceGetRandom(void) {
+Piece PieceGetRandom(const PieceType *previousPieceType) {
   int randomIndex = GetRandomValue(0, 6);
-  // if (&tetrominoes[randomIndex] == gameState.previousPiece) {
-  //   randomIndex = GetRandomValue(0, 6);
-  // }
-  // gameState.previousPiece = &tetrominoes[randomIndex];
+  if (&tetrominoes[randomIndex] == previousPieceType) {
+    randomIndex = GetRandomValue(0, 6);
+  }
   return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, INITIAL_POSITION};
 }

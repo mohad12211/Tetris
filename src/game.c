@@ -25,7 +25,8 @@ void GameUpdate(GameState *state) {
         Vector2 blockPosition = Vector2Add(blocks->points[i], state->currentPiece.position);
         state->board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state->currentPiece.tetromino->color, true};
       }
-      state->currentPiece = PieceGetRandom();
+      state->currentPiece = state->nextPiece;
+      state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
     }
     state->time = 0;
   }
@@ -86,9 +87,8 @@ void GameReset(GameState *state) {
     ((Block *)state->board)[i] = (Block){WHITE, false};
   }
   state->isPaused = false;
-  state->previousPieceType = NULL;
-  state->currentPiece = PieceGetRandom();
-  state->nextPiece = PieceGetRandom();
+  state->currentPiece = PieceGetRandom(NULL);
+  state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
   state->time = 0;
   SeekMusicStream(state->music, 0.0f);
 }
