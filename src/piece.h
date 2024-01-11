@@ -1,3 +1,6 @@
+#ifndef PIECE_H
+#define PIECE_H
+
 #include <raylib.h>
 
 #define WIDTH 1000
@@ -34,19 +37,14 @@ typedef struct {
   bool occupied;
 } Block;
 
-typedef struct {
-  Block board[ROWS][COLUMNS];
-  bool isPaused;
-  const PieceType *previousPiece;
-} GameState;
-
-extern const PieceType tetrominoes[];
-extern GameState gameState;
+// extern const PieceType tetrominoes[];
 
 void PieceDraw(Piece *piece, Vector2 position);
-void PieceRotateClockwise(Piece *piece);
-void PieceRotateCounterClockwise(Piece *piece);
-void PieceMoveLeft(Piece *piece);
-void PieceMoveRight(Piece *piece);
-bool PieceMoveDown(Piece *piece);
+void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]);
+void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]);
+void PieceMoveLeft(Piece *piece, Block board[ROWS][COLUMNS]);
+void PieceMoveRight(Piece *piece, Block board[ROWS][COLUMNS]);
+bool PieceMoveDown(Piece *piece, Block board[ROWS][COLUMNS]);
 Piece PieceGetRandom(void);
+
+#endif // PIECE_H

@@ -1,6 +1,7 @@
-#include "common.h"
 #include <raylib.h>
 #include <raymath.h>
+
+#include "piece.h"
 
 const PieceType tetrominoes[] = {
     // I
@@ -57,12 +58,11 @@ void PieceDraw(Piece *piece, Vector2 screenPosition) {
   }
 }
 
-void PieceRotateClockwise(Piece *piece) {
+void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[(piece->rotationIndex + 1) % 4];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
-        gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -70,48 +70,47 @@ void PieceRotateClockwise(Piece *piece) {
   piece->rotationIndex = (piece->rotationIndex + 1) % 4;
 }
 
-void PieceRotateCounterClockwise(Piece *piece) {
+void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[((piece->rotationIndex - 1) + 4) % 4];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
-        gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
   piece->rotationIndex = ((piece->rotationIndex - 1) + 4) % 4;
 }
 
-void PieceMoveLeft(Piece *piece) {
+void PieceMoveLeft(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.x -= 1;
-    if (blockPosition.x < 0 || gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
   piece->position.x -= 1;
 }
 
-void PieceMoveRight(Piece *piece) {
+void PieceMoveRight(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.x += 1;
-    if (blockPosition.x >= COLUMNS || gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x >= COLUMNS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
   piece->position.x += 1;
 }
 
-bool PieceMoveDown(Piece *piece) {
+bool PieceMoveDown(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.y += 1;
-    if (blockPosition.y >= ROWS || gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return true;
     }
   }
@@ -121,9 +120,9 @@ bool PieceMoveDown(Piece *piece) {
 
 Piece PieceGetRandom(void) {
   int randomIndex = GetRandomValue(0, 6);
-  if (&tetrominoes[randomIndex] == gameState.previousPiece) {
-    randomIndex = GetRandomValue(0, 6);
-  }
-  gameState.previousPiece = &tetrominoes[randomIndex];
+  // if (&tetrominoes[randomIndex] == gameState.previousPiece) {
+  //   randomIndex = GetRandomValue(0, 6);
+  // }
+  // gameState.previousPiece = &tetrominoes[randomIndex];
   return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, INITIAL_POSITION};
 }
