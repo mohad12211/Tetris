@@ -122,5 +122,5 @@ Piece PieceGetRandom(const PieceType *previousPieceType) {
   if (&tetrominoes[randomIndex] == previousPieceType) {
     randomIndex = GetRandomValue(0, 6);
   }
-  return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, INITIAL_POSITION};
+  return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, Vector2Zero()};
 }

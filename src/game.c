@@ -26,6 +26,7 @@ void GameUpdate(GameState *state) {
         state->board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state->currentPiece.tetromino->color, true};
       }
       state->currentPiece = state->nextPiece;
+      state->currentPiece.position = INITIAL_BOARD_POSITION;
       state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
     }
     state->time = 0;
@@ -59,6 +60,9 @@ void GameDraw(GameState *state) {
   GameDrawBoard(state->board, (Vector2){playfield.x, playfield.y});
   DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
   EndScissorMode();
+  Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 4, BLOCK_LEN * 4};
+  PieceDraw(&state->nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
+  DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
   EndDrawing();
 }
 
@@ -88,6 +92,7 @@ void GameReset(GameState *state) {
   }
   state->isPaused = false;
   state->currentPiece = PieceGetRandom(NULL);
+  state->currentPiece.position = INITIAL_BOARD_POSITION;
   state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
   state->time = 0;
   SeekMusicStream(state->music, 0.0f);
