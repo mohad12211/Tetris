@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <raymath.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "game.h"
@@ -24,6 +25,26 @@ void GameUpdate(GameState *state) {
         const PieceConfiguration *blocks = &state->currentPiece.tetromino->rotations[state->currentPiece.rotationIndex];
         Vector2 blockPosition = Vector2Add(blocks->points[i], state->currentPiece.position);
         state->board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state->currentPiece.tetromino->color, true};
+      }
+      for (int row = 0; row < ROWS; row++) {
+        bool isFull = true;
+        for (int column = 0; column < COLUMNS; column++) {
+          if (!state->board[row][column].occupied) {
+            isFull = false;
+            break;
+          }
+        }
+        if (isFull) {
+          for (int column = 0; column < COLUMNS; column++) {
+            state->board[row][column].occupied = false;
+          }
+
+          for (int rowAbove = row; rowAbove > 0; rowAbove--) {
+            for (int column = 0; column < COLUMNS; column++) {
+              state->board[rowAbove][column] = state->board[rowAbove - 1][column];
+            }
+          }
+        }
       }
       state->currentPiece = state->nextPiece;
       state->currentPiece.position = INITIAL_BOARD_POSITION;
