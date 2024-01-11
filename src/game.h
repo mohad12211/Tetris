@@ -15,7 +15,7 @@
 #define PIECE_COUNT 7
 #define INITIAL_ROTATION 0
 #define INITIAL_BOARD_POSITION ((Vector2){3, 0})
-#define GRAVITY_TIME 1.0f
+#define GRAVITY_TIME 0.5f
 
 typedef struct {
   Vector2 points[4];
