@@ -60,7 +60,7 @@ void GameDraw(GameState *state) {
   GameDrawBoard(state->board, (Vector2){playfield.x, playfield.y});
   DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
   EndScissorMode();
-  Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 4, BLOCK_LEN * 4};
+  Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
   PieceDraw(&state->nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
   DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
   EndDrawing();

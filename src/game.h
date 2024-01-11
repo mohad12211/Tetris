@@ -24,6 +24,8 @@ typedef struct {
 typedef struct {
   Color color;
   PieceConfiguration rotations[4];
+  // the offset required so that the piece is centered when displayed on the "next piece" rectangle
+  Vector2 displayOffset;
 } PieceType;
 
 typedef struct {

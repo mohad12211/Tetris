@@ -9,43 +9,50 @@ const PieceType tetrominoes[] = {
      {{{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},
       {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}},
       {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},
-      {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}}}},
+      {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}}},
+     {0.5, -0.5}},
     // J
     {{0, 0, 240, 255},
      {{{{1, 2}, {2, 2}, {3, 2}, {3, 3}}},
       {{{1, 3}, {2, 1}, {2, 2}, {2, 3}}},
       {{{1, 2}, {2, 2}, {3, 2}, {1, 1}}},
-      {{{3, 1}, {2, 1}, {2, 2}, {2, 3}}}}},
+      {{{3, 1}, {2, 1}, {2, 2}, {2, 3}}}},
+     {0, -1}},
     // L
     {{240, 161, 0, 255},
      {{{{1, 2}, {2, 2}, {3, 2}, {1, 3}}},
       {{{1, 1}, {2, 1}, {2, 2}, {2, 3}}},
       {{{1, 2}, {2, 2}, {3, 2}, {3, 1}}},
-      {{{3, 3}, {2, 1}, {2, 2}, {2, 3}}}}},
+      {{{3, 3}, {2, 1}, {2, 2}, {2, 3}}}},
+     {0, -1}},
     // O
     {{240, 240, 0, 255},
      {{{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
       {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
       {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
-      {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}}}},
+      {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}}},
+     {0.5, -1}},
     // T
     {{162, 0, 240, 255},
      {{{{1, 2}, {2, 2}, {3, 2}, {2, 3}}},
       {{{2, 1}, {2, 2}, {2, 3}, {1, 2}}},
       {{{1, 2}, {2, 2}, {3, 2}, {2, 1}}},
-      {{{2, 1}, {2, 2}, {2, 3}, {3, 2}}}}},
+      {{{2, 1}, {2, 2}, {2, 3}, {3, 2}}}},
+     {0, -1}},
     // S
     {{0, 240, 0, 255},
      {{{{2, 2}, {2, 3}, {3, 2}, {1, 3}}},
       {{{2, 2}, {2, 1}, {3, 2}, {3, 3}}},
       {{{2, 2}, {2, 3}, {3, 2}, {1, 3}}},
-      {{{2, 2}, {2, 1}, {3, 2}, {3, 3}}}}},
+      {{{2, 2}, {2, 1}, {3, 2}, {3, 3}}}},
+     {0, -1}},
     // Z
     {{241, 0, 0, 255},
      {{{{2, 2}, {2, 3}, {3, 3}, {1, 2}}},
       {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}},
       {{{2, 2}, {2, 3}, {3, 3}, {1, 2}}},
-      {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}}}},
+      {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}}},
+     {0, -1}},
 };
 
 void PieceDraw(Piece *piece, Vector2 screenPosition) {
@@ -61,7 +68,8 @@ void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[(piece->rotationIndex + 1) % 4];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
+        board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -73,7 +81,8 @@ void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[((piece->rotationIndex - 1) + 4) % 4];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
+        board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -122,5 +131,5 @@ Piece PieceGetRandom(const PieceType *previousPieceType) {
   if (&tetrominoes[randomIndex] == previousPieceType) {
     randomIndex = GetRandomValue(0, 6);
   }
-  return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, Vector2Zero()};
+  return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, tetrominoes[randomIndex].displayOffset};
 }
