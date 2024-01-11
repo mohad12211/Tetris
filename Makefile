@@ -22,7 +22,7 @@ run_debug run_release:
 
 else
 
-CC=gcc
+CC=clang
 SRCDIR=src
 OBJDIR=build/$(PROFILE)/obj
 LIBDIR=libs
@@ -35,7 +35,7 @@ LIBS=$(wildcard $(LIBDIR)/*.c)
 LIBSOBJS=$(patsubst $(LIBDIR)/%.c, $(LIBOBJDIR)/%.o, $(LIBS))
 DEPS=$(patsubst $(SRCDIR)/%.c, $(DEPDIR)/%.d, $(SRCS))
 BIN=$(BINDIR)/$(PROJECTNAME)
-CFLAGS= -std=gnu99 -Wpedantic -Wextra -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wfloat-equal -Wwrite-strings -Wswitch-default -Wswitch-enum -Wmissing-declarations
+CFLAGS= -std=gnu99 -Wpedantic -Wextra -Wall -Wshadow-all -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wfloat-equal -Wswitch-default -Wswitch-enum -Wmissing-declarations
 DEPFLAGS=-MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 LDFLAGS= -lm -lraylib
 PREFIX=/usr

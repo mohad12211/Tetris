@@ -1,7 +1,4 @@
 #include <raylib.h>
-#include <raymath.h>
-#include <stdbool.h>
-#include <stdio.h>
 
 #define WIDTH 1000
 #define HEIGHT 1000
@@ -14,6 +11,8 @@
 #define COLUMNS 10
 #define PIECE_COUNT 7
 #define INITIAL_ROTATION 0
+#define INITIAL_POSITION ((Vector2){3, 0})
+#define GRAVITY_TIME 1.0f
 
 typedef struct {
   Vector2 points[4];
@@ -21,7 +20,6 @@ typedef struct {
 
 typedef struct {
   Color color;
-  Vector2 spawnPosition;
   PieceConfiguration rotations[4];
 } PieceType;
 
@@ -44,4 +42,5 @@ void PieceRotateClockwise(Piece *piece);
 void PieceRotateCounterClockwise(Piece *piece);
 void PieceMoveLeft(Piece *piece);
 void PieceMoveRight(Piece *piece);
-void PieceMoveDown(Piece *piece);
+bool PieceMoveDown(Piece *piece);
+Piece PieceGetRandom(void);
