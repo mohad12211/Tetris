@@ -61,7 +61,8 @@ void PieceRotateClockwise(Piece *piece) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[(piece->rotationIndex + 1) % 4];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
+        gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -73,7 +74,8 @@ void PieceRotateCounterClockwise(Piece *piece) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[((piece->rotationIndex - 1) + 4) % 4];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
+        gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -85,7 +87,7 @@ void PieceMoveLeft(Piece *piece) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.x -= 1;
-    if (blockPosition.x < 0 || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x < 0 || gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -97,7 +99,7 @@ void PieceMoveRight(Piece *piece) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.x += 1;
-    if (blockPosition.x >= COLUMNS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.x >= COLUMNS || gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
     }
   }
@@ -109,7 +111,7 @@ bool PieceMoveDown(Piece *piece) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.y += 1;
-    if (blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+    if (blockPosition.y >= ROWS || gameState.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return true;
     }
   }
@@ -118,6 +120,10 @@ bool PieceMoveDown(Piece *piece) {
 }
 
 Piece PieceGetRandom(void) {
-  // TODO: add 1 piece history
-  return (Piece){&tetrominoes[GetRandomValue(0, 6)], INITIAL_ROTATION, INITIAL_POSITION};
+  int randomIndex = GetRandomValue(0, 6);
+  if (&tetrominoes[randomIndex] == gameState.previousPiece) {
+    randomIndex = GetRandomValue(0, 6);
+  }
+  gameState.previousPiece = &tetrominoes[randomIndex];
+  return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, INITIAL_POSITION};
 }

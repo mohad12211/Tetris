@@ -4,14 +4,14 @@
 
 static void BoardDraw(Vector2 screenPosition);
 
-Block board[ROWS][COLUMNS] = {0};
+GameState gameState = {0};
 
 static void BoardDraw(Vector2 screenPosition) {
   for (int y = 0; y < ROWS; y++) {
     for (int x = 0; x < COLUMNS; x++) {
-      if (board[y][x].occupied) {
+      if (gameState.board[y][x].occupied) {
         Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale((Vector2){x, y}, BLOCK_LEN), screenPosition);
-        DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, board[y][x].color);
+        DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, gameState.board[y][x].color);
       }
     }
   }
@@ -19,7 +19,7 @@ static void BoardDraw(Vector2 screenPosition) {
 
 int main(void) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
-    ((Block *)board)[i] = (Block){WHITE, false};
+    ((Block *)gameState.board)[i] = (Block){WHITE, false};
   }
   SetTraceLogLevel(LOG_WARNING);
   InitAudioDevice();
@@ -40,7 +40,7 @@ int main(void) {
         for (int i = 0; i < 4; i++) {
           const PieceConfiguration *blocks = &fallingPiece.tetromino->rotations[fallingPiece.rotationIndex];
           Vector2 blockPosition = Vector2Add(blocks->points[i], fallingPiece.position);
-          board[(int)blockPosition.y][(int)blockPosition.x] = (Block){fallingPiece.tetromino->color, true};
+          gameState.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){fallingPiece.tetromino->color, true};
         }
         fallingPiece = PieceGetRandom();
       }

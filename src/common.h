@@ -34,8 +34,14 @@ typedef struct {
   bool occupied;
 } Block;
 
+typedef struct {
+  Block board[ROWS][COLUMNS];
+  bool isPaused;
+  const PieceType *previousPiece;
+} GameState;
+
 extern const PieceType tetrominoes[];
-extern Block board[ROWS][COLUMNS];
+extern GameState gameState;
 
 void PieceDraw(Piece *piece, Vector2 position);
 void PieceRotateClockwise(Piece *piece);
