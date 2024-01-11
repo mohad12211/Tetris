@@ -6,6 +6,9 @@
 #include "game.h"
 #include "piece.h"
 
+static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
+static void GameReset(GameState *state);
+
 void GameUpdate(GameState *state) {
   if (IsKeyPressed(KEY_R)) {
     GameReset(state);
@@ -87,17 +90,6 @@ void GameDraw(GameState *state) {
   EndDrawing();
 }
 
-void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
-  for (int y = 0; y < ROWS; y++) {
-    for (int x = 0; x < COLUMNS; x++) {
-      if (board[y][x].occupied) {
-        Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale((Vector2){x, y}, BLOCK_LEN), screenPosition);
-        DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, board[y][x].color);
-      }
-    }
-  }
-}
-
 void GameInit(GameState *state) {
   Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
   SetMusicVolume(music, 0.05f);
@@ -107,7 +99,9 @@ void GameInit(GameState *state) {
   GameReset(state);
 }
 
-void GameReset(GameState *state) {
+void GameCleanup(GameState *state) { UnloadMusicStream(state->music); }
+
+static void GameReset(GameState *state) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
     ((Block *)state->board)[i] = (Block){WHITE, false};
   }
@@ -119,4 +113,13 @@ void GameReset(GameState *state) {
   SeekMusicStream(state->music, 0.0f);
 }
 
-void GameCleanup(GameState *state) { UnloadMusicStream(state->music); }
+static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
+  for (int y = 0; y < ROWS; y++) {
+    for (int x = 0; x < COLUMNS; x++) {
+      if (board[y][x].occupied) {
+        Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale((Vector2){x, y}, BLOCK_LEN), screenPosition);
+        DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, board[y][x].color);
+      }
+    }
+  }
+}

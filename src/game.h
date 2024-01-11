@@ -49,10 +49,8 @@ typedef struct {
 } GameState;
 
 void GameCleanup(GameState *state);
-void GameReset(GameState *state);
 void GameInit(GameState *state);
 void GameUpdate(GameState *state);
 void GameDraw(GameState *state);
-void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 
 #endif // GAME_H
