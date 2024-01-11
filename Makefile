@@ -7,7 +7,7 @@ ifndef PROFILE
 default all: release
 
 release run_release: export PROFILE := Release
-release run_release: export EXTRA_CFLAGS := -O2 -s -march=native
+release run_release: export EXTRA_CFLAGS := -O2 -march=native
 debug run_debug: export PROFILE := Debug
 debug run_debug: export EXTRA_CFLAGS := -DDEBUG -Og -ggdb3
 
@@ -37,7 +37,7 @@ DEPS=$(patsubst $(SRCDIR)/%.c, $(DEPDIR)/%.d, $(SRCS))
 BIN=$(BINDIR)/$(PROJECTNAME)
 CFLAGS= -std=gnu99 -Wpedantic -Wextra -Wall -Wshadow-all -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wfloat-equal -Wswitch-default -Wswitch-enum -Wmissing-declarations
 DEPFLAGS=-MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
-LDFLAGS= -lm -lraylib
+LDFLAGS= -lm -lraylib -Wl,-s
 PREFIX=/usr
 
 $(BIN): $(OBJS) $(LIBSOBJS) | $(BINDIR)
