@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "game.h"
@@ -82,6 +83,7 @@ void GameUpdate(void) {
       }
     }
     if (isFull) {
+      state.linesCleared++;
       for (int column = 0; column < COLUMNS; column++) {
         state.board[row][column].occupied = false;
       }
@@ -128,6 +130,15 @@ void GameDraw(void) {
   Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
   PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
   DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
+
+  Rectangle linesCounterRect = {playfield.x, playfield.y + 2.0f, BLOCK_LEN * COLUMNS, 2 * BLOCK_LEN};
+  DrawRectangleLinesEx(linesCounterRect, 2, GRAY);
+  char text[64];
+  snprintf(text, 64, "LINES-%d", state.linesCleared);
+  Vector2 measure = MeasureTextEx(GetFontDefault(), text, FONT_SIZE, FONT_SIZE / 10.0f);
+  DrawText(text, linesCounterRect.x + (linesCounterRect.width - measure.x) / 2.0f,
+           linesCounterRect.y + (linesCounterRect.height - measure.y) / 2.0f + 4.0f, FONT_SIZE, WHITE);
+
   EndDrawing();
 }
 
@@ -150,7 +161,8 @@ static void GameReset(void) {
   state.currentPiece = PieceGetRandom(NULL);
   state.currentPiece.position = INITIAL_BOARD_POSITION;
   state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
-  state.time = 0;
+  state.fallingTimer = 0;
+  state.linesCleared = 0;
   state.isQOLMode = false;
   SeekMusicStream(state.music, 0.0f);
 }
