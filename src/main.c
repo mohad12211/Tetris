@@ -13,7 +13,7 @@ int main(void) {
   while (!WindowShouldClose()) {
     GameUpdate();
     GameDraw();
-    DrawFPS(0, 0);
+    DrawFPS(5, 5);
   }
 
   GameCleanup();
