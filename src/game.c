@@ -12,6 +12,7 @@ static void GameReset(void);
 static GameState state = {0};
 
 void GameUpdate(void) {
+  // State Controls
   if (IsKeyPressed(KEY_R)) {
     GameReset();
   }
@@ -24,6 +25,8 @@ void GameUpdate(void) {
   if (state.isPaused) {
     return;
   }
+
+  // Game Controls
   state.time += GetFrameTime();
   UpdateMusicStream(state.music);
   // TODO: controls feel funky
@@ -51,6 +54,7 @@ void GameUpdate(void) {
   if (state.time < INITIAL_FALLING_TIME) {
     return;
   }
+  // Falling Logic
   state.time = 0;
   bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
   if (!reachedGround) {
@@ -61,6 +65,7 @@ void GameUpdate(void) {
     Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
     state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
   }
+  // Clear full rows
   for (int row = 0; row < ROWS; row++) {
     bool isFull = true;
     for (int column = 0; column < COLUMNS; column++) {
@@ -81,6 +86,7 @@ void GameUpdate(void) {
       }
     }
   }
+  // Check if player lost
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &state.nextPiece.tetromino->rotations[state.nextPiece.rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
@@ -89,6 +95,7 @@ void GameUpdate(void) {
       return;
     }
   }
+  // Generate next piece
   state.currentPiece = state.nextPiece;
   state.currentPiece.position = INITIAL_BOARD_POSITION;
   state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
