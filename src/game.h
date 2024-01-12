@@ -15,7 +15,7 @@
 #define PIECE_COUNT 7
 #define INITIAL_ROTATION 0
 #define INITIAL_BOARD_POSITION ((Vector2){3, 0})
-#define FALLING_SPEED 30
+#define FALLING_SPEED 48
 #define FONT_SIZE 60
 
 typedef struct {
