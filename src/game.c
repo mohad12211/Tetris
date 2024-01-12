@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "game.h"
 #include "piece.h"
@@ -37,21 +38,35 @@ void GameUpdate(void) {
   // Game Controls
   state.fallingTimer++;
   UpdateMusicStream(state.music);
-  // TODO: controls feel funky
-  if (IsKeyPressedRepeat(KEY_X) || IsKeyPressed(KEY_X)) {
+  if (IsKeyPressed(KEY_X)) {
     PieceRotateClockwise(&state.currentPiece, state.board);
   }
-  if (IsKeyPressedRepeat(KEY_Z) || IsKeyPressed(KEY_Z)) {
+  if (IsKeyPressed(KEY_Z)) {
     PieceRotateCounterClockwise(&state.currentPiece, state.board);
   }
-  if (IsKeyPressedRepeat(KEY_LEFT) || IsKeyPressed(KEY_LEFT)) {
-    PieceMoveLeft(&state.currentPiece, state.board);
+  if (IsKeyDown(KEY_LEFT)) {
+    if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED && !IsKeyPressed(KEY_LEFT)) {
+      state.keyTimers[KEY_LEFT_TIMER]++;
+    } else {
+      state.keyTimers[KEY_LEFT_TIMER] = 0;
+      PieceMoveLeft(&state.currentPiece, state.board);
+    }
   }
-  if (IsKeyPressedRepeat(KEY_RIGHT) || IsKeyPressed(KEY_RIGHT)) {
-    PieceMoveRight(&state.currentPiece, state.board);
+  if (IsKeyDown(KEY_RIGHT)) {
+    if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED && !IsKeyPressed(KEY_RIGHT)) {
+      state.keyTimers[KEY_RIGHT_TIMER]++;
+    } else {
+      state.keyTimers[KEY_RIGHT_TIMER] = 0;
+      PieceMoveRight(&state.currentPiece, state.board);
+    }
   }
-  if (IsKeyPressedRepeat(KEY_DOWN) || IsKeyPressed(KEY_DOWN)) {
-    state.fallingTimer = FALLING_SPEED;
+  if (IsKeyDown(KEY_DOWN)) {
+    if (state.keyTimers[KEY_DOWN_TIMER] < 1 && !IsKeyPressed(KEY_DOWN)) {
+      state.keyTimers[KEY_DOWN_TIMER]++;
+    } else {
+      state.keyTimers[KEY_DOWN_TIMER] = 0;
+      state.fallingTimer = FALLING_SPEED;
+    }
   }
   if (IsKeyPressed(KEY_UP) && state.isQOLMode) {
     while (!PieceMoveDown(&state.currentPiece, state.board))
@@ -157,6 +172,7 @@ static void GameReset(void) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
     ((Block *)state.board)[i] = (Block){WHITE, false};
   }
+  memset(state.keyTimers, 0, KEY_TIMERS_COUNT * sizeof(int));
   state.isPaused = false;
   state.currentPiece = PieceGetRandom(NULL);
   state.currentPiece.position = INITIAL_BOARD_POSITION;

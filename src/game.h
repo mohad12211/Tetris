@@ -17,6 +17,14 @@
 #define INITIAL_BOARD_POSITION ((Vector2){3, 0})
 #define FALLING_SPEED 48
 #define FONT_SIZE 60
+#define KEY_TIMER_SPEED 5
+
+typedef enum {
+  KEY_DOWN_TIMER,
+  KEY_LEFT_TIMER,
+  KEY_RIGHT_TIMER,
+  KEY_TIMERS_COUNT,
+} KeyTimers;
 
 typedef struct {
   Vector2 points[4];
@@ -47,6 +55,7 @@ typedef struct {
   Piece currentPiece;
   Piece nextPiece;
   int fallingTimer; // frames
+  int keyTimers[KEY_TIMERS_COUNT];
   int linesCleared;
   Music music;
 } GameState;
