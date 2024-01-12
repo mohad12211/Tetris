@@ -16,7 +16,7 @@ int main(void) {
   }
 
   GameCleanup(&gameState);
-  CloseAudioDevice();
   CloseWindow();
+  CloseAudioDevice();
   return 0;
 }

@@ -74,8 +74,7 @@ void GameUpdate(GameState *state) {
       }
       for (int i = 0; i < 4; i++) {
         const PieceConfiguration *blocks = &state->nextPiece.tetromino->rotations[state->nextPiece.rotationIndex];
-        Vector2 blockPosition = Vector2Add(blocks->points[i], state->nextPiece.position);
-        blockPosition.x += 1;
+        Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
         if (state->board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
           GameReset(state);
           return;
