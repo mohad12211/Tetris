@@ -15,7 +15,8 @@
 #define PIECE_COUNT 7
 #define INITIAL_ROTATION 0
 #define INITIAL_BOARD_POSITION ((Vector2){3, 0})
-#define INITIAL_FALLING_TIME 0.5f
+#define FALLING_SPEED 30
+#define FONT_SIZE 60
 
 typedef struct {
   Vector2 points[4];
@@ -45,7 +46,8 @@ typedef struct {
   bool isQOLMode;
   Piece currentPiece;
   Piece nextPiece;
-  float time;
+  int fallingTimer; // frames
+  int linesCleared;
   Music music;
 } GameState;
 

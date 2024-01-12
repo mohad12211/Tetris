@@ -27,7 +27,7 @@ void GameUpdate(void) {
   }
 
   // Game Controls
-  state.time += GetFrameTime();
+  state.fallingTimer++;
   UpdateMusicStream(state.music);
   // TODO: controls feel funky
   if (IsKeyPressedRepeat(KEY_X) || IsKeyPressed(KEY_X)) {
@@ -43,19 +43,19 @@ void GameUpdate(void) {
     PieceMoveRight(&state.currentPiece, state.board);
   }
   if (IsKeyPressedRepeat(KEY_DOWN) || IsKeyPressed(KEY_DOWN)) {
-    state.time = INITIAL_FALLING_TIME;
+    state.fallingTimer = FALLING_SPEED;
   }
   if (IsKeyPressed(KEY_UP) && state.isQOLMode) {
     while (!PieceMoveDown(&state.currentPiece, state.board))
       ;
-    state.time = INITIAL_FALLING_TIME;
+    state.fallingTimer = FALLING_SPEED;
   }
 
-  if (state.time < INITIAL_FALLING_TIME) {
+  if (state.fallingTimer < FALLING_SPEED) {
     return;
   }
   // Falling Logic
-  state.time = 0;
+  state.fallingTimer = 0;
   bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
   if (!reachedGround) {
     return;
