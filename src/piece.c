@@ -3,7 +3,7 @@
 
 #include "piece.h"
 
-const PieceType tetrominoes[] = {
+static const PieceType tetrominoes[] = {
     // I
     {{0, 240, 240, 255},
      {{{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},

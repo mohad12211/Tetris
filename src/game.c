@@ -9,7 +9,7 @@
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
 
-GameState state = {0};
+static GameState state = {0};
 
 void GameUpdate(void) {
   if (IsKeyPressed(KEY_R)) {
