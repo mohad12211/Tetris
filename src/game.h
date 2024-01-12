@@ -26,6 +26,11 @@ typedef enum {
   KEY_TIMERS_COUNT,
 } KeyTimers;
 
+typedef enum {
+  SCREEN_START,
+  SCREEN_PLAY,
+} ScreenState;
+
 typedef struct {
   Vector2 points[4];
 } PieceConfiguration;
@@ -50,12 +55,14 @@ typedef struct {
 
 typedef struct {
   Block board[ROWS][COLUMNS];
+  ScreenState screenState;
   bool isPaused;
   Piece currentPiece;
   Piece nextPiece;
   int fallingTimer; // frames
   int keyTimers[KEY_TIMERS_COUNT];
   int linesCleared;
+  int startingLevel;
   Music music;
 } GameState;
 
