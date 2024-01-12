@@ -22,6 +22,13 @@ void GameUpdate(void) {
   if (IsKeyPressed(KEY_SPACE)) {
     state.isPaused = !state.isPaused;
   }
+  if (IsKeyPressed(KEY_M)) {
+    if (IsMusicStreamPlaying(state.music)) {
+      PauseMusicStream(state.music);
+    } else {
+      ResumeMusicStream(state.music);
+    }
+  }
   if (state.isPaused) {
     return;
   }
