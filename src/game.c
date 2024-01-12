@@ -78,6 +78,8 @@ void GameUpdate(void) {
         PieceMoveRight(&state.currentPiece, state.board);
       }
     }
+
+    // TODO: don't go down when a new piece spawns
     if (IsKeyDown(KEY_DOWN)) {
       if (state.keyTimers[KEY_DOWN_TIMER] < 1 && !IsKeyPressed(KEY_DOWN)) {
         state.keyTimers[KEY_DOWN_TIMER]++;
