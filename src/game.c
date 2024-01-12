@@ -138,7 +138,7 @@ void GameDraw(void) {
   snprintf(text, 64, "LINES-%d", state.linesCleared);
   Vector2 measure = MeasureTextEx(GetFontDefault(), text, FONT_SIZE, FONT_SIZE / 10.0f);
   DrawText(text, linesCounterRect.x + (linesCounterRect.width - measure.x) / 2.0f,
-           linesCounterRect.y + (linesCounterRect.height - measure.y) / 2.0f + 4.0f, FONT_SIZE, WHITE);
+           linesCounterRect.y + (linesCounterRect.height - measure.y) / 2.0f, FONT_SIZE, WHITE);
 
   EndDrawing();
 }
