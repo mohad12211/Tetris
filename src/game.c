@@ -40,55 +40,58 @@ void GameUpdate(void) {
     PieceMoveRight(&state.currentPiece, state.board);
   }
   if (IsKeyPressedRepeat(KEY_DOWN) || IsKeyPressed(KEY_DOWN)) {
-    state.time = GRAVITY_TIME;
+    state.time = INITIAL_FALLING_TIME;
   }
   if (IsKeyPressed(KEY_UP) && state.isQOLMode) {
     while (!PieceMoveDown(&state.currentPiece, state.board))
       ;
-    state.time = GRAVITY_TIME;
+    state.time = INITIAL_FALLING_TIME;
   }
-  if (state.time >= GRAVITY_TIME) {
-    bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
-    if (reachedGround) {
-      for (int i = 0; i < 4; i++) {
-        const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
-        Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
-        state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
-      }
-      for (int row = 0; row < ROWS; row++) {
-        bool isFull = true;
-        for (int column = 0; column < COLUMNS; column++) {
-          if (!state.board[row][column].occupied) {
-            isFull = false;
-            break;
-          }
-        }
-        if (isFull) {
-          for (int column = 0; column < COLUMNS; column++) {
-            state.board[row][column].occupied = false;
-          }
 
-          for (int rowAbove = row; rowAbove > 0; rowAbove--) {
-            for (int column = 0; column < COLUMNS; column++) {
-              state.board[rowAbove][column] = state.board[rowAbove - 1][column];
-            }
-          }
-        }
-      }
-      for (int i = 0; i < 4; i++) {
-        const PieceConfiguration *blocks = &state.nextPiece.tetromino->rotations[state.nextPiece.rotationIndex];
-        Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
-        if (state.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
-          GameReset();
-          return;
-        }
-      }
-      state.currentPiece = state.nextPiece;
-      state.currentPiece.position = INITIAL_BOARD_POSITION;
-      state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
-    }
-    state.time = 0;
+  if (state.time < INITIAL_FALLING_TIME) {
+    return;
   }
+  state.time = 0;
+  bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
+  if (!reachedGround) {
+    return;
+  }
+  for (int i = 0; i < 4; i++) {
+    const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
+    Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
+    state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
+  }
+  for (int row = 0; row < ROWS; row++) {
+    bool isFull = true;
+    for (int column = 0; column < COLUMNS; column++) {
+      if (!state.board[row][column].occupied) {
+        isFull = false;
+        break;
+      }
+    }
+    if (isFull) {
+      for (int column = 0; column < COLUMNS; column++) {
+        state.board[row][column].occupied = false;
+      }
+
+      for (int rowAbove = row; rowAbove > 0; rowAbove--) {
+        for (int column = 0; column < COLUMNS; column++) {
+          state.board[rowAbove][column] = state.board[rowAbove - 1][column];
+        }
+      }
+    }
+  }
+  for (int i = 0; i < 4; i++) {
+    const PieceConfiguration *blocks = &state.nextPiece.tetromino->rotations[state.nextPiece.rotationIndex];
+    Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
+    if (state.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+      GameReset();
+      return;
+    }
+  }
+  state.currentPiece = state.nextPiece;
+  state.currentPiece.position = INITIAL_BOARD_POSITION;
+  state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
 }
 
 void GameDraw(void) {
@@ -111,7 +114,6 @@ void GameDraw(void) {
   Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
   PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
   DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
-
   EndDrawing();
 }
 
