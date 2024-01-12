@@ -5,18 +5,19 @@
 int main(void) {
   SetTraceLogLevel(LOG_WARNING);
   SetTargetFPS(60);
+
   InitAudioDevice();
   InitWindow(WIDTH, HEIGHT, "Tetris");
-  GameState gameState = {0};
-  GameInit(&gameState);
+  GameInit();
 
   while (!WindowShouldClose()) {
-    GameUpdate(&gameState);
-    GameDraw(&gameState);
+    GameUpdate();
+    GameDraw();
   }
 
-  GameCleanup(&gameState);
+  GameCleanup();
   CloseWindow();
   CloseAudioDevice();
+
   return 0;
 }

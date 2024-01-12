@@ -7,134 +7,136 @@
 #include "piece.h"
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
-static void GameReset(GameState *state);
+static void GameReset(void);
 
-void GameUpdate(GameState *state) {
+GameState state = {0};
+
+void GameUpdate(void) {
   if (IsKeyPressed(KEY_R)) {
-    GameReset(state);
+    GameReset();
   }
   if (IsKeyPressed(KEY_E)) {
-    state->isQOLMode = !state->isQOLMode;
+    state.isQOLMode = !state.isQOLMode;
   }
   if (IsKeyPressed(KEY_SPACE)) {
-    state->isPaused = !state->isPaused;
+    state.isPaused = !state.isPaused;
   }
-  if (state->isPaused) {
+  if (state.isPaused) {
     return;
   }
-  state->time += GetFrameTime();
-  UpdateMusicStream(state->music);
+  state.time += GetFrameTime();
+  UpdateMusicStream(state.music);
+  // TODO: controls feel funky
   if (IsKeyPressedRepeat(KEY_X) || IsKeyPressed(KEY_X)) {
-    PieceRotateClockwise(&state->currentPiece, state->board);
+    PieceRotateClockwise(&state.currentPiece, state.board);
   }
   if (IsKeyPressedRepeat(KEY_Z) || IsKeyPressed(KEY_Z)) {
-    PieceRotateCounterClockwise(&state->currentPiece, state->board);
+    PieceRotateCounterClockwise(&state.currentPiece, state.board);
   }
   if (IsKeyPressedRepeat(KEY_LEFT) || IsKeyPressed(KEY_LEFT)) {
-    PieceMoveLeft(&state->currentPiece, state->board);
+    PieceMoveLeft(&state.currentPiece, state.board);
   }
   if (IsKeyPressedRepeat(KEY_RIGHT) || IsKeyPressed(KEY_RIGHT)) {
-    PieceMoveRight(&state->currentPiece, state->board);
+    PieceMoveRight(&state.currentPiece, state.board);
   }
   if (IsKeyPressedRepeat(KEY_DOWN) || IsKeyPressed(KEY_DOWN)) {
-    state->time = GRAVITY_TIME;
+    state.time = GRAVITY_TIME;
   }
-  if (IsKeyPressed(KEY_UP) && state->isQOLMode) {
-    while (!PieceMoveDown(&state->currentPiece, state->board))
+  if (IsKeyPressed(KEY_UP) && state.isQOLMode) {
+    while (!PieceMoveDown(&state.currentPiece, state.board))
       ;
-    state->time = GRAVITY_TIME;
+    state.time = GRAVITY_TIME;
   }
-  if (state->time >= GRAVITY_TIME) {
-    bool reachedGround = PieceMoveDown(&state->currentPiece, state->board);
+  if (state.time >= GRAVITY_TIME) {
+    bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
     if (reachedGround) {
       for (int i = 0; i < 4; i++) {
-        const PieceConfiguration *blocks = &state->currentPiece.tetromino->rotations[state->currentPiece.rotationIndex];
-        Vector2 blockPosition = Vector2Add(blocks->points[i], state->currentPiece.position);
-        state->board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state->currentPiece.tetromino->color, true};
+        const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
+        Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
+        state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
       }
       for (int row = 0; row < ROWS; row++) {
         bool isFull = true;
         for (int column = 0; column < COLUMNS; column++) {
-          if (!state->board[row][column].occupied) {
+          if (!state.board[row][column].occupied) {
             isFull = false;
             break;
           }
         }
         if (isFull) {
           for (int column = 0; column < COLUMNS; column++) {
-            state->board[row][column].occupied = false;
+            state.board[row][column].occupied = false;
           }
 
           for (int rowAbove = row; rowAbove > 0; rowAbove--) {
             for (int column = 0; column < COLUMNS; column++) {
-              state->board[rowAbove][column] = state->board[rowAbove - 1][column];
+              state.board[rowAbove][column] = state.board[rowAbove - 1][column];
             }
           }
         }
       }
       for (int i = 0; i < 4; i++) {
-        const PieceConfiguration *blocks = &state->nextPiece.tetromino->rotations[state->nextPiece.rotationIndex];
+        const PieceConfiguration *blocks = &state.nextPiece.tetromino->rotations[state.nextPiece.rotationIndex];
         Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
-        if (state->board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
-          GameReset(state);
+        if (state.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+          GameReset();
           return;
         }
       }
-      state->currentPiece = state->nextPiece;
-      state->currentPiece.position = INITIAL_BOARD_POSITION;
-      state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
+      state.currentPiece = state.nextPiece;
+      state.currentPiece.position = INITIAL_BOARD_POSITION;
+      state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
     }
-    state->time = 0;
+    state.time = 0;
   }
-  // TODO: controls feel funky
 }
 
-void GameDraw(GameState *state) {
+void GameDraw(void) {
   BeginDrawing();
   ClearBackground(BLACK);
   Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS, BLOCK_LEN * ROWS};
   // playfield without the buffer area
   Rectangle shownPlayfield = {playfield.x, playfield.y + BUFFER_AREA, playfield.width, playfield.height - BUFFER_AREA};
   BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
-  PieceDraw(&state->currentPiece, (Vector2){playfield.x, playfield.y});
-  GameDrawBoard(state->board, (Vector2){playfield.x, playfield.y});
+  PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y});
+  GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
   DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
   EndScissorMode();
-  if (state->isQOLMode) {
-    Piece ghostPiece = state->currentPiece;
-    while (!PieceMoveDown(&ghostPiece, state->board))
+  if (state.isQOLMode) {
+    Piece ghostPiece = state.currentPiece;
+    while (!PieceMoveDown(&ghostPiece, state.board))
       ;
     PieceDrawGhost(&ghostPiece, (Vector2){playfield.x, playfield.y});
   }
   Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
-  PieceDraw(&state->nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
+  PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
   DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
 
   EndDrawing();
 }
 
-void GameInit(GameState *state) {
+void GameInit(void) {
   Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
   SetMusicVolume(music, 0.05f);
   PlayMusicStream(music);
 
-  state->music = music;
-  GameReset(state);
+  state.music = music;
+  GameReset();
 }
 
-void GameCleanup(GameState *state) { UnloadMusicStream(state->music); }
+void GameCleanup(void) { UnloadMusicStream(state.music); }
 
-static void GameReset(GameState *state) {
+static void GameReset(void) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
-    ((Block *)state->board)[i] = (Block){WHITE, false};
+    ((Block *)state.board)[i] = (Block){WHITE, false};
   }
-  state->isPaused = false;
-  state->currentPiece = PieceGetRandom(NULL);
-  state->currentPiece.position = INITIAL_BOARD_POSITION;
-  state->nextPiece = PieceGetRandom(state->currentPiece.tetromino);
-  state->time = 0;
-  state->isQOLMode = false;
-  SeekMusicStream(state->music, 0.0f);
+  state.isPaused = false;
+  state.currentPiece = PieceGetRandom(NULL);
+  state.currentPiece.position = INITIAL_BOARD_POSITION;
+  state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
+  state.time = 0;
+  state.isQOLMode = false;
+  SeekMusicStream(state.music, 0.0f);
 }
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {

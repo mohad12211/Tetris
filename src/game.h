@@ -49,9 +49,9 @@ typedef struct {
   Music music;
 } GameState;
 
-void GameCleanup(GameState *state);
-void GameInit(GameState *state);
-void GameUpdate(GameState *state);
-void GameDraw(GameState *state);
+void GameCleanup(void);
+void GameInit(void);
+void GameUpdate(void);
+void GameDraw(void);
 
 #endif // GAME_H
