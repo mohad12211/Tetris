@@ -18,9 +18,6 @@ void GameUpdate(void) {
   if (IsKeyPressed(KEY_R)) {
     GameReset();
   }
-  if (IsKeyPressed(KEY_E)) {
-    state.isQOLMode = !state.isQOLMode;
-  }
   if (IsKeyPressed(KEY_SPACE)) {
     state.isPaused = !state.isPaused;
   }
@@ -67,11 +64,6 @@ void GameUpdate(void) {
       state.keyTimers[KEY_DOWN_TIMER] = 0;
       state.fallingTimer = FALLING_SPEED;
     }
-  }
-  if (IsKeyPressed(KEY_UP) && state.isQOLMode) {
-    while (!PieceMoveDown(&state.currentPiece, state.board))
-      ;
-    state.fallingTimer = FALLING_SPEED;
   }
 
   if (state.fallingTimer < FALLING_SPEED) {
@@ -136,12 +128,6 @@ void GameDraw(void) {
   GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
   DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
   EndScissorMode();
-  if (state.isQOLMode) {
-    Piece ghostPiece = state.currentPiece;
-    while (!PieceMoveDown(&ghostPiece, state.board))
-      ;
-    PieceDrawGhost(&ghostPiece, (Vector2){playfield.x, playfield.y});
-  }
   Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
   PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
   DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
@@ -179,7 +165,6 @@ static void GameReset(void) {
   state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
   state.fallingTimer = 0;
   state.linesCleared = 0;
-  state.isQOLMode = false;
   SeekMusicStream(state.music, 0.0f);
 }
 
