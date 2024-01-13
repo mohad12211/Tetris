@@ -11,6 +11,7 @@
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
 
+static const int scoringTable[4] = {40, 100, 300, 1200};
 static GameState state = {0};
 
 // TODO: reconsider the idea of Update/Draw
@@ -104,6 +105,7 @@ void GameUpdate(void) {
       state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
     }
     // Clear full rows
+    int clearedRows = 0;
     for (int row = 0; row < ROWS; row++) {
       bool isFull = true;
       for (int column = 0; column < COLUMNS; column++) {
@@ -113,7 +115,7 @@ void GameUpdate(void) {
         }
       }
       if (isFull) {
-        state.linesCleared++;
+        clearedRows++;
         for (int column = 0; column < COLUMNS; column++) {
           state.board[row][column].occupied = false;
         }
@@ -124,6 +126,10 @@ void GameUpdate(void) {
           }
         }
       }
+    }
+    if (clearedRows > 0) {
+      state.linesCleared += clearedRows;
+      state.score += scoringTable[clearedRows - 1] * (state.currentLevel + 1);
     }
     // Check if player lost
     for (int i = 0; i < 4; i++) {
