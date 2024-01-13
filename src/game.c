@@ -7,11 +7,14 @@
 
 #include "game.h"
 #include "piece.h"
+#include "util.h"
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
 
 static const int scoringTable[4] = {40, 100, 300, 1200};
+static const int fallingSpeedTable[30] = {48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1};
+
 static GameState state = {0};
 
 // TODO: reconsider the idea of Update/Draw
@@ -28,6 +31,9 @@ void GameUpdate(void) {
       Rectangle levelBox = {(WIDTH - totalWidth) / 2.0f + chosenLevel * (levelBoxLen + levelBoxSpacing), HEIGHT / 2.0f, levelBoxLen,
                             levelBoxLen};
       if (chosenLevel >= 0 && chosenLevel <= 9 && CheckCollisionPointRec(GetMousePosition(), levelBox)) {
+        if (IsKeyDown(KEY_X)) {
+          chosenLevel += 10;
+        }
         state.screenState = SCREEN_PLAY;
         state.startingLevel = chosenLevel;
         state.currentLevel = chosenLevel;
@@ -80,16 +86,17 @@ void GameUpdate(void) {
       }
     }
 
+    const int fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
     if (IsKeyDown(KEY_DOWN)) {
       if (state.keyTimers[KEY_DOWN_TIMER] == KEY_DOWN_TIMER_SPEED || IsKeyPressed(KEY_DOWN)) {
-        state.fallingTimer = FALLING_SPEED;
+        state.fallingTimer = fallingSpeed;
         state.keyTimers[KEY_DOWN_TIMER] = 0;
       } else if (state.keyTimers[KEY_DOWN_TIMER] < KEY_DOWN_TIMER_SPEED) {
         state.keyTimers[KEY_DOWN_TIMER]++;
       }
     }
 
-    if (state.fallingTimer < FALLING_SPEED) {
+    if (state.fallingTimer < fallingSpeed) {
       state.fallingTimer++;
       break;
     }
