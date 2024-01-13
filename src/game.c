@@ -63,29 +63,28 @@ void GameUpdate(void) {
       PieceRotateCounterClockwise(&state.currentPiece, state.board);
     }
     if (IsKeyDown(KEY_LEFT)) {
-      if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED && !IsKeyPressed(KEY_LEFT)) {
-        state.keyTimers[KEY_LEFT_TIMER]++;
-      } else {
+      if (state.keyTimers[KEY_LEFT_TIMER] == KEY_TIMER_SPEED || IsKeyPressed(KEY_LEFT)) {
         state.keyTimers[KEY_LEFT_TIMER] = 0;
         PieceMoveLeft(&state.currentPiece, state.board);
+      } else if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED) {
+        state.keyTimers[KEY_LEFT_TIMER]++;
       }
     }
     if (IsKeyDown(KEY_RIGHT)) {
-      if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED && !IsKeyPressed(KEY_RIGHT)) {
-        state.keyTimers[KEY_RIGHT_TIMER]++;
-      } else {
+      if (state.keyTimers[KEY_RIGHT_TIMER] == KEY_TIMER_SPEED || IsKeyPressed(KEY_RIGHT)) {
         state.keyTimers[KEY_RIGHT_TIMER] = 0;
         PieceMoveRight(&state.currentPiece, state.board);
+      } else if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED) {
+        state.keyTimers[KEY_RIGHT_TIMER]++;
       }
     }
 
-    // TODO: don't go down when a new piece spawns
     if (IsKeyDown(KEY_DOWN)) {
-      if (state.keyTimers[KEY_DOWN_TIMER] < 1 && !IsKeyPressed(KEY_DOWN)) {
-        state.keyTimers[KEY_DOWN_TIMER]++;
-      } else {
-        state.keyTimers[KEY_DOWN_TIMER] = 0;
+      if (state.keyTimers[KEY_DOWN_TIMER] == KEY_DOWN_TIMER_SPEED || IsKeyPressed(KEY_DOWN)) {
         state.fallingTimer = FALLING_SPEED;
+        state.keyTimers[KEY_DOWN_TIMER] = 0;
+      } else if (state.keyTimers[KEY_DOWN_TIMER] < KEY_DOWN_TIMER_SPEED) {
+        state.keyTimers[KEY_DOWN_TIMER]++;
       }
     }
 
@@ -138,6 +137,7 @@ void GameUpdate(void) {
     state.currentPiece = state.nextPiece;
     state.currentPiece.position = INITIAL_BOARD_POSITION;
     state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
+    state.keyTimers[KEY_DOWN_TIMER] = KEY_DOWN_TIMER_SPEED + 1;
     break;
   }
   }

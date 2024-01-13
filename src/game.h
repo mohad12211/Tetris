@@ -18,6 +18,7 @@
 #define FALLING_SPEED 48
 #define FONT_SIZE 60
 #define KEY_TIMER_SPEED 5
+#define KEY_DOWN_TIMER_SPEED 2
 
 typedef enum {
   KEY_DOWN_TIMER,
