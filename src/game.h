@@ -44,8 +44,8 @@ typedef struct {
 
 typedef struct {
   const PieceType *tetromino;
-  int rotationIndex;
   Vector2 position;
+  int rotationIndex;
 } Piece;
 
 typedef struct {
@@ -56,7 +56,6 @@ typedef struct {
 typedef struct {
   Block board[ROWS][COLUMNS];
   ScreenState screenState;
-  bool isPaused;
   Piece currentPiece;
   Piece nextPiece;
   float fallingTimer;
@@ -65,8 +64,9 @@ typedef struct {
   int startingLevel;
   int currentLevel;
   int score;
-  int softDropCounter;
   Music music;
+  int softDropCounter;
+  bool isPaused;
 } GameState;
 
 void GameCleanup(void);

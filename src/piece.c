@@ -131,5 +131,5 @@ Piece PieceGetRandom(const PieceType *previousPieceType) {
   if (&tetrominoes[randomIndex] == previousPieceType) {
     randomIndex = GetRandomValue(0, 6);
   }
-  return (Piece){&tetrominoes[randomIndex], INITIAL_ROTATION, tetrominoes[randomIndex].displayOffset};
+  return (Piece){&tetrominoes[randomIndex], tetrominoes[randomIndex].displayOffset, INITIAL_ROTATION};
 }
