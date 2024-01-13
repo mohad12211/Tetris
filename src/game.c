@@ -90,10 +90,13 @@ void GameUpdate(void) {
     if (IsKeyDown(KEY_DOWN)) {
       if (state.keyTimers[KEY_DOWN_TIMER] == KEY_DOWN_TIMER_SPEED || IsKeyPressed(KEY_DOWN)) {
         state.fallingTimer = fallingSpeed;
+        state.softDropCounter++;
         state.keyTimers[KEY_DOWN_TIMER] = 0;
       } else if (state.keyTimers[KEY_DOWN_TIMER] < KEY_DOWN_TIMER_SPEED) {
         state.keyTimers[KEY_DOWN_TIMER]++;
       }
+    } else {
+      state.softDropCounter = 0;
     }
 
     if (state.fallingTimer < fallingSpeed) {
@@ -106,6 +109,8 @@ void GameUpdate(void) {
     if (!reachedGround) {
       break;
     }
+    state.score += MAX(0, state.softDropCounter - 1);
+    state.softDropCounter = 0;
     for (int i = 0; i < 4; i++) {
       const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
       Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
