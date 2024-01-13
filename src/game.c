@@ -13,7 +13,9 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
 
 static const int scoringTable[4] = {40, 100, 300, 1200};
-static const int fallingSpeedTable[30] = {48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1};
+static const float fallingSpeedTable[30] = {0.8f,   0.715f, 0.632f, 0.549f, 0.466f, 0.383f, 0.300f, 0.216f, 0.133f,  0.100f,
+                                            0.083f, 0.083f, 0.083f, 0.67f,  0.67f,  0.67f,  0.050f, 0.050f, 0.050f,  0.033f,
+                                            0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.0333f, 0.0166f};
 
 static GameState state = {0};
 
@@ -21,6 +23,7 @@ static GameState state = {0};
 // since updating some stuff in the draw function looks better sometimes to reduce code duplication
 
 void GameUpdate(void) {
+  float time = GetFrameTime();
   switch (state.screenState) {
   case SCREEN_START: {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -70,37 +73,37 @@ void GameUpdate(void) {
       PieceRotateCounterClockwise(&state.currentPiece, state.board);
     }
     if (IsKeyDown(KEY_LEFT)) {
-      if (state.keyTimers[KEY_LEFT_TIMER] == KEY_TIMER_SPEED || IsKeyPressed(KEY_LEFT)) {
+      if (WithinHalf(state.keyTimers[KEY_LEFT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_LEFT)) {
         state.keyTimers[KEY_LEFT_TIMER] = 0;
         PieceMoveLeft(&state.currentPiece, state.board);
       } else if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED) {
-        state.keyTimers[KEY_LEFT_TIMER]++;
+        state.keyTimers[KEY_LEFT_TIMER] += time;
       }
     }
     if (IsKeyDown(KEY_RIGHT)) {
-      if (state.keyTimers[KEY_RIGHT_TIMER] == KEY_TIMER_SPEED || IsKeyPressed(KEY_RIGHT)) {
+      if (WithinHalf(state.keyTimers[KEY_RIGHT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_RIGHT)) {
         state.keyTimers[KEY_RIGHT_TIMER] = 0;
         PieceMoveRight(&state.currentPiece, state.board);
       } else if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED) {
-        state.keyTimers[KEY_RIGHT_TIMER]++;
+        state.keyTimers[KEY_RIGHT_TIMER] += time;
       }
     }
 
-    const int fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
+    const float fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
     if (IsKeyDown(KEY_DOWN)) {
-      if (state.keyTimers[KEY_DOWN_TIMER] == KEY_DOWN_TIMER_SPEED || IsKeyPressed(KEY_DOWN)) {
+      if (WithinHalf(state.keyTimers[KEY_DOWN_TIMER], KEY_DOWN_TIMER_SPEED) || IsKeyPressed(KEY_DOWN)) {
         state.fallingTimer = fallingSpeed;
         state.softDropCounter++;
         state.keyTimers[KEY_DOWN_TIMER] = 0;
       } else if (state.keyTimers[KEY_DOWN_TIMER] < KEY_DOWN_TIMER_SPEED) {
-        state.keyTimers[KEY_DOWN_TIMER]++;
+        state.keyTimers[KEY_DOWN_TIMER] += time;
       }
     } else {
       state.softDropCounter = 0;
     }
 
     if (state.fallingTimer < fallingSpeed) {
-      state.fallingTimer++;
+      state.fallingTimer += time;
       break;
     }
     // Falling Logic
@@ -250,7 +253,7 @@ static void GameReset(void) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
     ((Block *)state.board)[i] = (Block){WHITE, false};
   }
-  memset(state.keyTimers, 0, KEY_TIMERS_COUNT * sizeof(int));
+  memset(state.keyTimers, 0, KEY_TIMERS_COUNT * sizeof(float));
   state.screenState = SCREEN_START;
   state.startingLevel = 0;
   state.currentLevel = 0;

@@ -16,8 +16,8 @@
 #define INITIAL_ROTATION 0
 #define INITIAL_BOARD_POSITION ((Vector2){3, 0})
 #define FONT_SIZE 60
-#define KEY_TIMER_SPEED 5
-#define KEY_DOWN_TIMER_SPEED 2
+#define KEY_TIMER_SPEED 0.06f
+#define KEY_DOWN_TIMER_SPEED 0.03f
 
 typedef enum {
   KEY_DOWN_TIMER,
@@ -59,8 +59,8 @@ typedef struct {
   bool isPaused;
   Piece currentPiece;
   Piece nextPiece;
-  int fallingTimer; // frames
-  int keyTimers[KEY_TIMERS_COUNT];
+  float fallingTimer;
+  float keyTimers[KEY_TIMERS_COUNT];
   int linesCleared;
   int startingLevel;
   int currentLevel;
