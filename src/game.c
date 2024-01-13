@@ -136,6 +136,10 @@ void GameUpdate(void) {
     }
     if (clearedRows > 0) {
       state.linesCleared += clearedRows;
+      int transitionPoint = (state.startingLevel + 1) * 10;
+      if (state.linesCleared >= transitionPoint) {
+        state.currentLevel = (state.linesCleared - transitionPoint) / 10 + state.startingLevel + 1;
+      }
       state.score += scoringTable[clearedRows - 1] * (state.currentLevel + 1);
     }
     // Check if player lost
