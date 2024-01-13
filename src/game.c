@@ -29,6 +29,7 @@ void GameUpdate(void) {
       if (chosenLevel >= 0 && chosenLevel <= 9 && CheckCollisionPointRec(GetMousePosition(), levelBox)) {
         state.screenState = SCREEN_PLAY;
         state.startingLevel = chosenLevel;
+        state.currentLevel = chosenLevel;
         PlayMusicStream(state.music);
       }
     }
@@ -171,11 +172,13 @@ void GameDraw(void) {
     Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS, BLOCK_LEN * ROWS};
     // playfield without the buffer area
     Rectangle shownPlayfield = {playfield.x, playfield.y + BUFFER_AREA, playfield.width, playfield.height - BUFFER_AREA};
+
     BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
     PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y});
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
     DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
     EndScissorMode();
+
     Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5, BLOCK_LEN * 4};
     PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
     DrawRectangleLinesEx(nextPieceRect, 2, GRAY);
@@ -184,9 +187,18 @@ void GameDraw(void) {
     DrawRectangleLinesEx(linesCounterRect, 2, GRAY);
     char clearedLinesSting[64];
     snprintf(clearedLinesSting, 64, "LINES-%d", state.linesCleared);
-    Vector2 measure = MeasureTextEx(GetFontDefault(), clearedLinesSting, FONT_SIZE, FONT_SIZE / 10.0f);
-    DrawText(clearedLinesSting, linesCounterRect.x + (linesCounterRect.width - measure.x) / 2.0f,
-             linesCounterRect.y + (linesCounterRect.height - measure.y) / 2.0f, FONT_SIZE, WHITE);
+    Vector2 clearedLinesStringMeasure = MeasureTextEx(GetFontDefault(), clearedLinesSting, FONT_SIZE, FONT_SIZE / 10.0f);
+    DrawText(clearedLinesSting, linesCounterRect.x + (linesCounterRect.width - clearedLinesStringMeasure.x) / 2.0f,
+             linesCounterRect.y + (linesCounterRect.height - clearedLinesStringMeasure.y) / 2.0f, FONT_SIZE, WHITE);
+
+    Rectangle levelRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 1.7f, BLOCK_LEN * 5, BLOCK_LEN * 2 + 5.0f};
+    DrawRectangleLinesEx(levelRect, 2, GRAY);
+    Vector2 levelLiteralMeasure = MeasureTextEx(GetFontDefault(), "LEVEL", 40.0f, 40.0f / 10);
+    DrawText("LEVEL", levelRect.x + (levelRect.width - levelLiteralMeasure.x) / 2.0f, levelRect.y + 5.0f, 40.0f, WHITE);
+    char currentLevelString[64];
+    snprintf(currentLevelString, 64, "%d", state.currentLevel);
+    DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, 40.0f)) / 2.0f,
+             levelRect.y + levelLiteralMeasure.y + 5.0f, 40.0f, WHITE);
     break;
   }
   }
@@ -211,6 +223,7 @@ static void GameReset(void) {
   memset(state.keyTimers, 0, KEY_TIMERS_COUNT * sizeof(int));
   state.screenState = SCREEN_START;
   state.startingLevel = 0;
+  state.currentLevel = 0;
   state.isPaused = false;
   state.currentPiece = PieceGetRandom(NULL);
   state.currentPiece.position = INITIAL_BOARD_POSITION;

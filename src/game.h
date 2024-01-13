@@ -64,6 +64,7 @@ typedef struct {
   int keyTimers[KEY_TIMERS_COUNT];
   int linesCleared;
   int startingLevel;
+  int currentLevel;
   Music music;
 } GameState;
 
