@@ -193,12 +193,20 @@ void GameDraw(void) {
 
     Rectangle levelRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 1.7f, BLOCK_LEN * 5, BLOCK_LEN * 2 + 5.0f};
     DrawRectangleLinesEx(levelRect, 2, GRAY);
-    Vector2 levelLiteralMeasure = MeasureTextEx(GetFontDefault(), "LEVEL", 40.0f, 40.0f / 10);
-    DrawText("LEVEL", levelRect.x + (levelRect.width - levelLiteralMeasure.x) / 2.0f, levelRect.y + 5.0f, 40.0f, WHITE);
+    DrawText("LEVEL", levelRect.x + (levelRect.width - MeasureText("LEVEL", 40.0f)) / 2.0f, levelRect.y + 5.0f, 40.0f, WHITE);
     char currentLevelString[64];
     snprintf(currentLevelString, 64, "%d", state.currentLevel);
     DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, 40.0f)) / 2.0f,
-             levelRect.y + levelLiteralMeasure.y + 5.0f, 40.0f, WHITE);
+             levelRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
+
+    Rectangle scoreRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, shownPlayfield.y, BLOCK_LEN * 6, BLOCK_LEN * 2 + 5.0f};
+    DrawRectangleLinesEx(scoreRect, 2, GRAY);
+    DrawText("SCORE", scoreRect.x + (scoreRect.width - MeasureText("SCORE", 40.0f)) / 2.0f, scoreRect.y + 5.0f, 40.0f, WHITE);
+    char scoreString[64];
+    snprintf(scoreString, 64, "%09d", state.score);
+    Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, 40.0f, 40.0f / 10);
+    DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
+
     break;
   }
   }
@@ -224,6 +232,7 @@ static void GameReset(void) {
   state.screenState = SCREEN_START;
   state.startingLevel = 0;
   state.currentLevel = 0;
+  state.score = 0;
   state.isPaused = false;
   state.currentPiece = PieceGetRandom(NULL);
   state.currentPiece.position = INITIAL_BOARD_POSITION;

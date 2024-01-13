@@ -65,6 +65,7 @@ typedef struct {
   int linesCleared;
   int startingLevel;
   int currentLevel;
+  int score;
   Music music;
 } GameState;
 
