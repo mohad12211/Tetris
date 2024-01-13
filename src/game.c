@@ -56,7 +56,6 @@ void GameUpdate(void) {
     }
 
     // Game Controls
-    state.fallingTimer++;
     UpdateMusicStream(state.music);
     if (IsKeyPressed(KEY_X)) {
       PieceRotateClockwise(&state.currentPiece, state.board);
@@ -91,6 +90,7 @@ void GameUpdate(void) {
     }
 
     if (state.fallingTimer < FALLING_SPEED) {
+      state.fallingTimer++;
       break;
     }
     // Falling Logic
