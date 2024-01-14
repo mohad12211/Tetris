@@ -13,10 +13,9 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
 
 static const int scoringTable[4] = {40, 100, 300, 1200};
-static const float fallingSpeedTable[30] = {0.8f,   0.715f, 0.632f, 0.549f, 0.466f, 0.383f, 0.300f, 0.216f, 0.133f,  0.100f,
-                                            0.083f, 0.083f, 0.083f, 0.67f,  0.67f,  0.67f,  0.050f, 0.050f, 0.050f,  0.033f,
-                                            0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.0333f, 0.0166f};
-
+static const float fallingSpeedTable[30] = {0.800f, 0.715f, 0.632f, 0.549f, 0.466f, 0.383f, 0.300f, 0.216f, 0.133f, 0.100f,
+                                            0.083f, 0.083f, 0.083f, 0.067f, 0.067f, 0.067f, 0.050f, 0.050f, 0.050f, 0.033f,
+                                            0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.016f};
 static GameState state = {0};
 
 // TODO: reconsider the idea of Update/Draw
