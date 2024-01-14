@@ -79,6 +79,8 @@ void GameUpdate(void) {
       } else if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED) {
         state.keyTimers[KEY_LEFT_TIMER] += time;
       }
+    } else {
+      state.keyTimers[KEY_LEFT_TIMER] = 0;
     }
     if (IsKeyDown(KEY_RIGHT)) {
       if (WithinHalf(state.keyTimers[KEY_RIGHT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_RIGHT)) {
@@ -87,6 +89,8 @@ void GameUpdate(void) {
       } else if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED) {
         state.keyTimers[KEY_RIGHT_TIMER] += time;
       }
+    } else {
+      state.keyTimers[KEY_RIGHT_TIMER] = 0;
     }
 
     const float fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
@@ -99,6 +103,7 @@ void GameUpdate(void) {
         state.keyTimers[KEY_DOWN_TIMER] += time;
       }
     } else {
+      state.keyTimers[KEY_DOWN_TIMER] = 0;
       state.softDropCounter = 0;
     }
 
@@ -106,6 +111,7 @@ void GameUpdate(void) {
       state.fallingTimer += time;
       break;
     }
+
     // Falling Logic
     state.fallingTimer = 0;
     bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
@@ -240,6 +246,7 @@ void GameDraw(void) {
 }
 
 void GameInit(void) {
+  // Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
   Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
   SetMusicVolume(music, 0.05f);
 
