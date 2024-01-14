@@ -108,6 +108,7 @@ void GameUpdate(void) {
     }
 
     if (state.fallingTimer < fallingSpeed) {
+      // FIXME: should this line be inside the condition or before it?
       state.fallingTimer += time;
       break;
     }
