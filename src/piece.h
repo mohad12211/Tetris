@@ -3,7 +3,7 @@
 
 #include "game.h"
 
-void PieceDraw(Piece *piece, Vector2 position);
+void PieceDraw(Piece *piece, Vector2 screenPosition);
 void PieceDrawGhost(Piece *piece, Vector2 screenPosition);
 void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]);
 void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]);
