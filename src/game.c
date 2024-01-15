@@ -18,9 +18,6 @@ static const float fallingSpeedTable[30] = {0.800f, 0.715f, 0.632f, 0.549f, 0.46
                                             0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.016f};
 static GameState state = {0};
 
-// TODO: reconsider the idea of Update/Draw
-// since updating some stuff in the draw function looks better sometimes to reduce code duplication
-
 void GameUpdate(void) {
   float time = GetFrameTime();
   switch (state.screenState) {
