@@ -4,9 +4,9 @@
 #include <emscripten/emscripten.h>
 #endif
 
-static void UpdateDrawFrame(void);
-
 #include "game.h"
+
+static void UpdateDrawFrame(void);
 
 int main(void) {
   SetTraceLogLevel(LOG_WARNING);

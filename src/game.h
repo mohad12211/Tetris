@@ -18,6 +18,7 @@
 #define FONT_SIZE 60
 #define KEY_DOWN_TIMER_SPEED 0.03333f
 #define KEY_TIMER_SPEED (2 * KEY_DOWN_TIMER_SPEED)
+#define ENTRY_DELAY -1.5f
 
 typedef enum {
   KEY_DOWN_TIMER,
@@ -60,6 +61,7 @@ typedef struct {
   Piece nextPiece;
   float fallingTimer;
   float keyTimers[KEY_TIMERS_COUNT];
+  float ARETimer;
   int linesCleared;
   int startingLevel;
   int currentLevel;

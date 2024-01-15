@@ -11,6 +11,7 @@
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
+static void GameHandleInput(void);
 
 static const int scoringTable[4] = {40, 100, 300, 1200};
 static const float fallingSpeedTable[30] = {0.800f, 0.715f, 0.632f, 0.549f, 0.466f, 0.383f, 0.300f, 0.216f, 0.133f, 0.100f,
@@ -19,7 +20,6 @@ static const float fallingSpeedTable[30] = {0.800f, 0.715f, 0.632f, 0.549f, 0.46
 static GameState state = {0};
 
 void GameUpdate(void) {
-  float time = GetFrameTime();
   switch (state.screenState) {
   case SCREEN_START: {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -42,9 +42,10 @@ void GameUpdate(void) {
     break;
   }
   case SCREEN_PLAY: {
-    // State Controls
+    // State input Controls
     if (IsKeyPressed(KEY_R)) {
       GameReset();
+      break;
     }
     if (IsKeyPressed(KEY_SPACE)) {
       state.isPaused = !state.isPaused;
@@ -60,61 +61,43 @@ void GameUpdate(void) {
       break;
     }
 
-    // Game Controls
     UpdateMusicStream(state.music);
-    if (IsKeyPressed(KEY_X)) {
-      PieceRotateClockwise(&state.currentPiece, state.board);
-    }
-    if (IsKeyPressed(KEY_Z)) {
-      PieceRotateCounterClockwise(&state.currentPiece, state.board);
-    }
-    if (IsKeyDown(KEY_LEFT)) {
-      if (WithinHalf(state.keyTimers[KEY_LEFT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_LEFT)) {
-        state.keyTimers[KEY_LEFT_TIMER] = 0;
-        PieceMoveLeft(&state.currentPiece, state.board);
-      } else if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED) {
-        state.keyTimers[KEY_LEFT_TIMER] += time;
-      }
-    } else {
-      state.keyTimers[KEY_LEFT_TIMER] = 0;
-    }
-    if (IsKeyDown(KEY_RIGHT)) {
-      if (WithinHalf(state.keyTimers[KEY_RIGHT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_RIGHT)) {
-        state.keyTimers[KEY_RIGHT_TIMER] = 0;
-        PieceMoveRight(&state.currentPiece, state.board);
-      } else if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED) {
-        state.keyTimers[KEY_RIGHT_TIMER] += time;
-      }
-    } else {
-      state.keyTimers[KEY_RIGHT_TIMER] = 0;
-    }
-
+    const float dt = GetFrameTime();
     const float fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
-    if (IsKeyDown(KEY_DOWN)) {
-      if (WithinHalf(state.keyTimers[KEY_DOWN_TIMER], KEY_DOWN_TIMER_SPEED) || IsKeyPressed(KEY_DOWN)) {
-        state.fallingTimer = fallingSpeed;
-        state.softDropCounter++;
-        state.keyTimers[KEY_DOWN_TIMER] = 0;
-      } else if (state.keyTimers[KEY_DOWN_TIMER] < KEY_DOWN_TIMER_SPEED) {
-        state.keyTimers[KEY_DOWN_TIMER] += time;
-      }
-    } else {
-      state.keyTimers[KEY_DOWN_TIMER] = 0;
-      state.softDropCounter = 0;
+
+    if (state.ARETimer <= 0) {
+      GameHandleInput();
     }
 
     if (state.fallingTimer < fallingSpeed) {
       // FIXME: should this line be inside the condition or before it?
-      state.fallingTimer += time;
+      state.fallingTimer += dt;
       break;
     }
 
-    // Falling Logic
-    state.fallingTimer = 0;
-    bool reachedGround = PieceMoveDown(&state.currentPiece, state.board);
-    if (!reachedGround) {
+    // Dropping Logic
+    bool isDropped = PieceMoveDown(&state.currentPiece, state.board);
+    if (isDropped) {
+      state.fallingTimer = 0;
       break;
     }
+
+    // Locking Logic
+    int lockRow = -1;
+    for (int i = 0; i < 4; i++) {
+      const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
+      Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
+      lockRow = MAX(lockRow, blockPosition.y);
+    }
+    float AREDelay = ((int)((((ROWS - lockRow - 1) + 2) / 4) * 2 + 10)) / 60.0f;
+    if (state.ARETimer < AREDelay) {
+      state.ARETimer += dt;
+      break;
+    }
+
+    // Clear rows and update score and generate next piece
+    state.fallingTimer = 0;
+    state.ARETimer = 0;
     state.score += MAX(0, state.softDropCounter - 1);
     state.softDropCounter = 0;
     for (int i = 0; i < 4; i++) {
@@ -122,6 +105,7 @@ void GameUpdate(void) {
       Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
       state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
     }
+
     // Clear full rows
     int clearedRows = 0;
     for (int row = 0; row < ROWS; row++) {
@@ -145,6 +129,8 @@ void GameUpdate(void) {
         }
       }
     }
+
+    // Update score and lines cleared
     if (clearedRows > 0) {
       state.linesCleared += clearedRows;
       int transitionPoint = (state.startingLevel + 1) * 10;
@@ -153,15 +139,18 @@ void GameUpdate(void) {
       }
       state.score += scoringTable[clearedRows - 1] * (state.currentLevel + 1);
     }
+
     // Check if player lost
     for (int i = 0; i < 4; i++) {
       const PieceConfiguration *blocks = &state.nextPiece.tetromino->rotations[state.nextPiece.rotationIndex];
       Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
       if (state.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
+        // TODO: Add a "Game Over" screen
         GameReset();
         break;
       }
     }
+
     // Generate next piece
     state.currentPiece = state.nextPiece;
     state.currentPiece.position = INITIAL_BOARD_POSITION;
@@ -253,6 +242,50 @@ void GameInit(void) {
 
 void GameCleanup(void) { UnloadMusicStream(state.music); }
 
+static void GameHandleInput(void) {
+  const float dt = GetFrameTime();
+  if (IsKeyPressed(KEY_X)) {
+    PieceRotateClockwise(&state.currentPiece, state.board);
+  }
+  if (IsKeyPressed(KEY_Z)) {
+    PieceRotateCounterClockwise(&state.currentPiece, state.board);
+  }
+  if (IsKeyDown(KEY_LEFT)) {
+    if (WithinHalf(state.keyTimers[KEY_LEFT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_LEFT)) {
+      state.keyTimers[KEY_LEFT_TIMER] = 0;
+      PieceMoveLeft(&state.currentPiece, state.board);
+    } else if (state.keyTimers[KEY_LEFT_TIMER] < KEY_TIMER_SPEED) {
+      state.keyTimers[KEY_LEFT_TIMER] += dt;
+    }
+  } else {
+    state.keyTimers[KEY_LEFT_TIMER] = 0;
+  }
+  if (IsKeyDown(KEY_RIGHT)) {
+    if (WithinHalf(state.keyTimers[KEY_RIGHT_TIMER], KEY_TIMER_SPEED) || IsKeyPressed(KEY_RIGHT)) {
+      state.keyTimers[KEY_RIGHT_TIMER] = 0;
+      PieceMoveRight(&state.currentPiece, state.board);
+    } else if (state.keyTimers[KEY_RIGHT_TIMER] < KEY_TIMER_SPEED) {
+      state.keyTimers[KEY_RIGHT_TIMER] += dt;
+    }
+  } else {
+    state.keyTimers[KEY_RIGHT_TIMER] = 0;
+  }
+
+  const float fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
+  if (IsKeyDown(KEY_DOWN)) {
+    if (WithinHalf(state.keyTimers[KEY_DOWN_TIMER], KEY_DOWN_TIMER_SPEED) || IsKeyPressed(KEY_DOWN)) {
+      state.fallingTimer = fallingSpeed;
+      state.softDropCounter++;
+      state.keyTimers[KEY_DOWN_TIMER] = 0;
+    } else if (state.keyTimers[KEY_DOWN_TIMER] < KEY_DOWN_TIMER_SPEED) {
+      state.keyTimers[KEY_DOWN_TIMER] += dt;
+    }
+  } else {
+    state.keyTimers[KEY_DOWN_TIMER] = 0;
+    state.softDropCounter = 0;
+  }
+}
+
 static void GameReset(void) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
     ((Block *)state.board)[i] = (Block){WHITE, false};
@@ -266,8 +299,9 @@ static void GameReset(void) {
   state.currentPiece = PieceGetRandom(NULL);
   state.currentPiece.position = INITIAL_BOARD_POSITION;
   state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
-  state.fallingTimer = 0;
+  state.fallingTimer = ENTRY_DELAY;
   state.linesCleared = 0;
+  state.ARETimer = 0;
   SeekMusicStream(state.music, 0.0f);
 }
 

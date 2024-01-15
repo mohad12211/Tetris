@@ -119,11 +119,11 @@ bool PieceMoveDown(Piece *piece, Block board[ROWS][COLUMNS]) {
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     blockPosition.y += 1;
     if (blockPosition.y >= ROWS || board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
-      return true;
+      return false;
     }
   }
   piece->position.y += 1;
-  return false;
+  return true;
 }
 
 Piece PieceGetRandom(const PieceType *previousPieceType) {
