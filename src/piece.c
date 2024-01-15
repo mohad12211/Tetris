@@ -55,19 +55,19 @@ static const PieceType tetrominoes[] = {
      {0, -1}},
 };
 
-void PieceDraw(Piece *piece, Vector2 screenPosition) {
+void PieceDraw(const Piece *piece, const Vector2 screenPosition) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
-    Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN), screenPosition);
+    const Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
+    const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN), screenPosition);
     DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, piece->tetromino->color);
   }
 }
 
-void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
+void PieceRotateClockwise(Piece *piece, const Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[(piece->rotationIndex + 1) % 4];
-    Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
+    const Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
         board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
@@ -77,10 +77,10 @@ void PieceRotateClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   piece->rotationIndex = (piece->rotationIndex + 1) % 4;
 }
 
-void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
+void PieceRotateCounterClockwise(Piece *piece, const Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[((piece->rotationIndex - 1) + 4) % 4];
-    Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
+    const Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     if (blockPosition.x < 0 || blockPosition.x >= COLUMNS || blockPosition.y >= ROWS ||
         board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
       return;
@@ -89,7 +89,7 @@ void PieceRotateCounterClockwise(Piece *piece, Block board[ROWS][COLUMNS]) {
   piece->rotationIndex = ((piece->rotationIndex - 1) + 4) % 4;
 }
 
-void PieceMoveLeft(Piece *piece, Block board[ROWS][COLUMNS]) {
+void PieceMoveLeft(Piece *piece, const Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
@@ -101,7 +101,7 @@ void PieceMoveLeft(Piece *piece, Block board[ROWS][COLUMNS]) {
   piece->position.x -= 1;
 }
 
-void PieceMoveRight(Piece *piece, Block board[ROWS][COLUMNS]) {
+void PieceMoveRight(Piece *piece, const Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
@@ -113,7 +113,7 @@ void PieceMoveRight(Piece *piece, Block board[ROWS][COLUMNS]) {
   piece->position.x += 1;
 }
 
-bool PieceMoveDown(Piece *piece, Block board[ROWS][COLUMNS]) {
+bool PieceMoveDown(Piece *piece, const Block board[ROWS][COLUMNS]) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
