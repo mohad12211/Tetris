@@ -36,7 +36,6 @@ void GameUpdate(void) {
         state.screenState = SCREEN_PLAY;
         state.startingLevel = chosenLevel;
         state.currentLevel = chosenLevel;
-        PlayMusicStream(state.music);
       }
     }
     break;
@@ -235,6 +234,7 @@ void GameInit(void) {
   // Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
   Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
   SetMusicVolume(music, 0.05f);
+  PlayMusicStream(music);
 
   state.music = music;
   GameReset();
@@ -302,7 +302,6 @@ static void GameReset(void) {
   state.fallingTimer = ENTRY_DELAY;
   state.linesCleared = 0;
   state.ARETimer = 0;
-  SeekMusicStream(state.music, 0.0f);
 }
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
