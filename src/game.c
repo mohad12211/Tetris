@@ -302,6 +302,7 @@ static void GameReset(void) {
   state.fallingTimer = ENTRY_DELAY;
   state.linesCleared = 0;
   state.ARETimer = 0;
+  SeekMusicStream(state.music, 0.0f);
 }
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
