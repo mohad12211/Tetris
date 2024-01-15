@@ -11,6 +11,7 @@
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
+static void GameUpdateMusic(void);
 static void GameHandleInput(void);
 
 static const int scoringTable[4] = {40, 100, 300, 1200};
@@ -51,17 +52,13 @@ void GameUpdate(void) {
       state.isPaused = !state.isPaused;
     }
     if (IsKeyPressed(KEY_M)) {
-      if (IsMusicStreamPlaying(state.music)) {
-        PauseMusicStream(state.music);
-      } else {
-        ResumeMusicStream(state.music);
-      }
+      state.isMusicPaused = !state.isMusicPaused;
     }
     if (state.isPaused) {
       break;
     }
 
-    UpdateMusicStream(state.music);
+    GameUpdateMusic();
     const float dt = GetFrameTime();
     const float fallingSpeed = fallingSpeedTable[MIN(state.currentLevel, 29)];
 
@@ -233,16 +230,37 @@ void GameDraw(void) {
 }
 
 void GameInit(void) {
-  // Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
-  Music music = LoadMusicStream("resources/Tetris_Theme_B_Orchestral_Cover.wav");
-  SetMusicVolume(music, 0.05f);
-  PlayMusicStream(music);
-
-  state.music = music;
+  for (int i = 0; i < MUSIC_COUNT; i++) {
+    state.music[i] = LoadMusicStream(TextFormat("resources/Music_%d.ogg", i + 1));
+    if (!IsMusicReady(state.music[i])) {
+      fprintf(stderr, "Coudln't load file: `resources/Music_%d.ogg`", i + 1);
+      exit(1);
+    }
+    state.music[i].looping = false;
+    SetMusicVolume(state.music[i], 0.05f);
+  }
+  state.currentMusicIndex = 0;
+  PlayMusicStream(state.music[state.currentMusicIndex]);
   GameReset();
 }
 
-void GameCleanup(void) { UnloadMusicStream(state.music); }
+void GameCleanup(void) {
+  for (int i = 0; i < MUSIC_COUNT; i++) {
+    UnloadMusicStream(state.music[i]);
+  }
+}
+
+static void GameUpdateMusic(void) {
+  Music currentMusic = state.music[state.currentMusicIndex];
+  if (state.isMusicPaused) {
+    return;
+  }
+  UpdateMusicStream(currentMusic);
+  if (!IsMusicStreamPlaying(currentMusic)) {
+    state.currentMusicIndex = (state.currentMusicIndex + 1) % MUSIC_COUNT;
+    PlayMusicStream(state.music[state.currentMusicIndex]);
+  }
+}
 
 static void GameHandleInput(void) {
   const float dt = GetFrameTime();
@@ -306,7 +324,8 @@ static void GameReset(void) {
   state.fallingTimer = ENTRY_DELAY;
   state.linesCleared = 0;
   state.ARETimer = 0.0f;
-  SeekMusicStream(state.music, 0.0f);
+  state.isMusicPaused = false;
+  // SeekMusicStream(state.music[state.currentMusicIndex], 0.0f);
 }
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {

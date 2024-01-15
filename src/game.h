@@ -19,6 +19,7 @@
 #define KEY_DOWN_TIMER_SPEED 0.03333f
 #define KEY_TIMER_SPEED (2 * KEY_DOWN_TIMER_SPEED)
 #define ENTRY_DELAY -1.5f
+#define MUSIC_COUNT 3
 
 typedef enum {
   KEY_DOWN_TIMER,
@@ -66,9 +67,11 @@ typedef struct {
   int startingLevel;
   int currentLevel;
   int score;
-  Music music;
   int softDropCounter;
+  Music music[MUSIC_COUNT];
+  int currentMusicIndex;
   bool isPaused;
+  bool isMusicPaused;
 } GameState;
 
 void GameCleanup(void);
