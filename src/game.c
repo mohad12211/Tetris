@@ -200,8 +200,7 @@ void GameDraw(void) {
 
     const Rectangle linesCounterRect = {playfield.x, playfield.y + 2.0f, BLOCK_LEN * COLUMNS, 2.0f * BLOCK_LEN};
     DrawRectangleLinesEx(linesCounterRect, 2.0f, GRAY);
-    char clearedLinesSting[64];
-    snprintf(clearedLinesSting, 64, "LINES-%d", state.linesCleared);
+    const char *clearedLinesSting = TextFormat("LINES-%d", state.linesCleared);
     const Vector2 clearedLinesStringMeasure = MeasureTextEx(GetFontDefault(), clearedLinesSting, FONT_SIZE, FONT_SIZE / 10.0f);
     DrawText(clearedLinesSting, linesCounterRect.x + (linesCounterRect.width - clearedLinesStringMeasure.x) / 2.0f,
              linesCounterRect.y + (linesCounterRect.height - clearedLinesStringMeasure.y) / 2.0f, FONT_SIZE, WHITE);
@@ -209,16 +208,14 @@ void GameDraw(void) {
     const Rectangle levelRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 1.7f, BLOCK_LEN * 5.0f, BLOCK_LEN * 2.0 + 5.0f};
     DrawRectangleLinesEx(levelRect, 2.0f, GRAY);
     DrawText("LEVEL", levelRect.x + (levelRect.width - MeasureText("LEVEL", 40.0f)) / 2.0f, levelRect.y + 5.0f, 40.0f, WHITE);
-    char currentLevelString[64];
-    snprintf(currentLevelString, 64, "%d", state.currentLevel);
+    const char *currentLevelString = TextFormat("%d", state.currentLevel);
     DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, 40.0f)) / 2.0f,
              levelRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
 
     const Rectangle scoreRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, shownPlayfield.y, BLOCK_LEN * 6.0f, BLOCK_LEN * 2.0f + 5.0f};
     DrawRectangleLinesEx(scoreRect, 2, GRAY);
     DrawText("SCORE", scoreRect.x + (scoreRect.width - MeasureText("SCORE", 40.0f)) / 2.0f, scoreRect.y + 5.0f, 40.0f, WHITE);
-    char scoreString[64];
-    snprintf(scoreString, 64, "%09d", state.score);
+    const char *scoreString = TextFormat("%09d", state.score);
     const Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, 40.0f, 40.0f / 10.0f);
     DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
 
