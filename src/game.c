@@ -20,6 +20,7 @@ static const float fallingSpeedTable[30] = {0.800f, 0.715f, 0.632f, 0.549f, 0.46
                                             0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.033f, 0.016f};
 static GameState state = {0};
 
+// TODO: add max score
 void GameUpdate(void) {
   switch (state.screenState) {
   case SCREEN_START: {
@@ -142,8 +143,8 @@ void GameUpdate(void) {
       const PieceConfiguration *blocks = &state.nextPiece.tetromino->rotations[state.nextPiece.rotationIndex];
       const Vector2 blockPosition = Vector2Add(blocks->points[i], INITIAL_BOARD_POSITION);
       if (state.board[(int)blockPosition.y][(int)blockPosition.x].occupied) {
-        // TODO: Add a "Game Over" screen
-        GameReset();
+        PlaySound(state.sounds[SOUND_GAMEOVER]);
+        state.screenState = SCREEN_GAMEOVER;
         break;
       }
     }
@@ -155,6 +156,11 @@ void GameUpdate(void) {
     state.keyTimers[KEY_DOWN_TIMER] = KEY_DOWN_TIMER_SPEED + 1.0f;
     break;
   }
+  case SCREEN_GAMEOVER:
+    if (IsKeyPressed(KEY_R)) {
+      GameReset();
+    }
+    break;
   }
 }
 
@@ -183,6 +189,7 @@ void GameDraw(void) {
     }
     break;
   }
+  case SCREEN_GAMEOVER:
   case SCREEN_PLAY: {
     const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS, BLOCK_LEN * ROWS};
     // playfield without the buffer area
@@ -219,6 +226,23 @@ void GameDraw(void) {
     const Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, 40.0f, 40.0f / 10.0f);
     DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
 
+    // TODO: Maybe refactor this into its own function?
+    if (state.screenState == SCREEN_PLAY) {
+      break;
+    }
+    const char *gameoverString = "GAME OVER";
+    const Vector2 gameoverStringMeasure = MeasureTextEx(GetFontDefault(), gameoverString, FONT_SIZE, FONT_SIZE / 10.0f);
+    const char *tryAgainString = "Press R to try again";
+    const Vector2 tryAgainStringMeasure = MeasureTextEx(GetFontDefault(), tryAgainString, 30.0f, 30.0 / 10.0f);
+
+    const Rectangle gameoverTextRect = {playfield.x, playfield.y + playfield.height / 2.0f - BLOCK_LEN * 2.0f, BLOCK_LEN * COLUMNS,
+                                        gameoverStringMeasure.y + tryAgainStringMeasure.y + 10.0f};
+    DrawRectangleRec(gameoverTextRect, BLACK);
+    DrawRectangleLinesEx(gameoverTextRect, 2.0f, GRAY);
+    DrawText(gameoverString, gameoverTextRect.x + (gameoverTextRect.width - gameoverStringMeasure.x) / 2.0f, gameoverTextRect.y + 5.0f,
+             FONT_SIZE, RED);
+    DrawText(tryAgainString, gameoverTextRect.x + (gameoverTextRect.width - tryAgainStringMeasure.x) / 2.0f,
+             gameoverTextRect.y + gameoverStringMeasure.y + 5.0f, 30.0f, WHITE);
     break;
   }
   }
@@ -235,6 +259,13 @@ void GameInit(void) {
     }
     state.music[i].looping = false;
     SetMusicVolume(state.music[i], 0.05f);
+  }
+  for (int i = 0; i < SOUND_COUNT; i++) {
+    state.sounds[i] = LoadSound(TextFormat("resources/Sound_%d.ogg", i + 1));
+    if (!IsSoundReady(state.sounds[i])) {
+      fprintf(stderr, "Coudln't load file: `resources/Sound_%d.ogg`", i + 1);
+      exit(1);
+    }
   }
   state.currentMusicIndex = 0;
   PlayMusicStream(state.music[state.currentMusicIndex]);

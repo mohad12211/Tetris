@@ -31,7 +31,13 @@ typedef enum {
 typedef enum {
   SCREEN_START,
   SCREEN_PLAY,
+  SCREEN_GAMEOVER,
 } ScreenState;
+
+typedef enum {
+  SOUND_GAMEOVER,
+  SOUND_COUNT,
+} SOUNDS;
 
 typedef struct {
   Vector2 points[4];
@@ -69,6 +75,7 @@ typedef struct {
   int score;
   int softDropCounter;
   Music music[MUSIC_COUNT];
+  Sound sounds[SOUND_COUNT];
   int currentMusicIndex;
   bool isPaused;
   bool isMusicPaused;
