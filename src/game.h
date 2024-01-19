@@ -36,6 +36,7 @@ typedef enum {
 
 typedef enum {
   SOUND_GAMEOVER,
+  SOUND_LINECLEAR,
   SOUND_COUNT,
 } SOUNDS;
 

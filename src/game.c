@@ -103,6 +103,9 @@ void GameUpdate(void) {
 
     int fullRowsCount = GameGetFullRowsCount();
     if (state.animationTimer <= 0.5f && fullRowsCount > 0) {
+      if (FloatEquals(state.animationTimer, 0)) {
+        PlaySound(state.sounds[SOUND_LINECLEAR]);
+      }
       state.animationTimer += dt;
       break;
     }
