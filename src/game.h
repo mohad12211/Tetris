@@ -15,10 +15,13 @@
 #define PIECE_COUNT 7
 #define INITIAL_ROTATION 0
 #define INITIAL_BOARD_POSITION ((Vector2){3, 0})
-#define FONT_SIZE 60
+#define FONT_SIZE_LARGE 60.0
+#define FONT_SIZE_MEDIUM 40.0
+#define FONT_SIZE_SMALL 30.0
 #define KEY_DOWN_TIMER_SPEED 0.03333f
 #define KEY_TIMER_SPEED (2 * KEY_DOWN_TIMER_SPEED)
 #define ENTRY_DELAY -1.5f
+#define LINE_THICKNESS 2.0f
 #define MUSIC_COUNT 3
 
 typedef enum {

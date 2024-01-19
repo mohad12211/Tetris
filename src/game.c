@@ -179,8 +179,8 @@ void GameDraw(void) {
   switch (state.screenState) {
   case SCREEN_START: {
     const char *startText = "Select level to start";
-    const Vector2 startTextMeasure = MeasureTextEx(GetFontDefault(), startText, 60.0f, 60.0f / 10.0f);
-    DrawText(startText, (WIDTH - startTextMeasure.x) / 2.0f, HEIGHT / 2.5f, 60.0f, WHITE);
+    const Vector2 startTextMeasure = MeasureTextEx(GetFontDefault(), startText, FONT_SIZE_LARGE, FONT_SIZE_LARGE / 10.0f);
+    DrawText(startText, (WIDTH - startTextMeasure.x) / 2.0f, HEIGHT / 2.5f, FONT_SIZE_LARGE, WHITE);
     const float levelBoxSpacing = BLOCK_LEN / 4.0f;
     const float levelBoxLen = BLOCK_LEN * 1.5f;
     const float totalWidth = 10.0f * levelBoxLen + 9.0f * levelBoxSpacing;
@@ -191,21 +191,23 @@ void GameDraw(void) {
         DrawRectangleRec(levelBox, ORANGE);
       }
       const char levelString[2] = {i + '0', 0};
-      const Vector2 levelStringMeasure = MeasureTextEx(GetFontDefault(), levelString, 40.0f, 40.0f / 10.0f);
+      const Vector2 levelStringMeasure = MeasureTextEx(GetFontDefault(), levelString, FONT_SIZE_MEDIUM, FONT_SIZE_MEDIUM / 10.0f);
       DrawText(levelString, levelBox.x + (levelBox.width - levelStringMeasure.x) / 2.0f,
-               levelBox.y + (levelBox.height - levelStringMeasure.y) / 2.0f, 40.0f, MAROON);
-      DrawRectangleLinesEx(levelBox, 2.0f, GREEN);
+               levelBox.y + (levelBox.height - levelStringMeasure.y) / 2.0f, FONT_SIZE_MEDIUM, MAROON);
+      DrawRectangleLinesEx(levelBox, LINE_THICKNESS, GREEN);
     }
     break;
   }
   case SCREEN_GAMEOVER:
   case SCREEN_PLAY: {
-    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5, BLOCK_LEN * ROWS + 2};
+    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5,
+                                 BLOCK_LEN * ROWS + LINE_THICKNESS};
     // playfield without the buffer area
     const Rectangle shownPlayfield = {playfield.x, playfield.y + BUFFER_AREA, playfield.width, playfield.height - BUFFER_AREA};
 
-    DrawRectangleLinesEx((Rectangle){shownPlayfield.x - 2, shownPlayfield.y - 2.0f, shownPlayfield.width + 4, shownPlayfield.height + 2.0f},
-                         2, GRAY);
+    DrawRectangleLinesEx((Rectangle){shownPlayfield.x - LINE_THICKNESS, shownPlayfield.y - LINE_THICKNESS,
+                                     shownPlayfield.width + 2.0 * LINE_THICKNESS, shownPlayfield.height + LINE_THICKNESS},
+                         LINE_THICKNESS, GRAY);
     BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
     PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y}, state.currentLevel % 10);
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
@@ -213,29 +215,33 @@ void GameDraw(void) {
 
     const Rectangle nextPieceRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
     PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y}, state.currentLevel % 10);
-    DrawRectangleLinesEx(nextPieceRect, 2.0f, GRAY);
+    DrawRectangleLinesEx(nextPieceRect, LINE_THICKNESS, GRAY);
 
-    const Rectangle linesCounterRect = {playfield.x - 2.0f, playfield.y, shownPlayfield.width + 4, 2.0f * BLOCK_LEN};
-    DrawRectangleLinesEx(linesCounterRect, 2.0f, GRAY);
+    const Rectangle linesCounterRect = {playfield.x - LINE_THICKNESS, playfield.y, shownPlayfield.width + 2.0f * LINE_THICKNESS,
+                                        2.0f * BLOCK_LEN};
+    DrawRectangleLinesEx(linesCounterRect, LINE_THICKNESS, GRAY);
     const char *clearedLinesSting = TextFormat("LINES-%d", state.linesCleared);
-    const Vector2 clearedLinesStringMeasure = MeasureTextEx(GetFontDefault(), clearedLinesSting, FONT_SIZE, FONT_SIZE / 10.0f);
+    const Vector2 clearedLinesStringMeasure = MeasureTextEx(GetFontDefault(), clearedLinesSting, FONT_SIZE_LARGE, FONT_SIZE_LARGE / 10.0f);
     DrawText(clearedLinesSting, linesCounterRect.x + (linesCounterRect.width - clearedLinesStringMeasure.x) / 2.0f,
-             linesCounterRect.y + (linesCounterRect.height - clearedLinesStringMeasure.y) / 2.0f, FONT_SIZE, WHITE);
+             linesCounterRect.y + (linesCounterRect.height - clearedLinesStringMeasure.y) / 2.0f, FONT_SIZE_LARGE, WHITE);
 
     const Rectangle levelRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 1.7f, BLOCK_LEN * 5.0f, BLOCK_LEN * 2.0 + 5.0f};
-    DrawRectangleLinesEx(levelRect, 2.0f, GRAY);
-    DrawText("LEVEL", levelRect.x + (levelRect.width - MeasureText("LEVEL", 40.0f)) / 2.0f, levelRect.y + 5.0f, 40.0f, WHITE);
+    DrawRectangleLinesEx(levelRect, LINE_THICKNESS, GRAY);
+    DrawText("LEVEL", levelRect.x + (levelRect.width - MeasureText("LEVEL", FONT_SIZE_MEDIUM)) / 2.0f, levelRect.y + 5.0f, FONT_SIZE_MEDIUM,
+             WHITE);
     const char *currentLevelString = TextFormat("%d", state.currentLevel);
-    DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, 40.0f)) / 2.0f,
-             levelRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
+    DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, FONT_SIZE_MEDIUM)) / 2.0f,
+             levelRect.y + BLOCK_LEN + 5.0f, FONT_SIZE_MEDIUM, WHITE);
 
-    const Rectangle scoreRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, shownPlayfield.y - 2.0f, BLOCK_LEN * 6.0f,
+    const Rectangle scoreRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, shownPlayfield.y - LINE_THICKNESS, BLOCK_LEN * 6.0f,
                                  BLOCK_LEN * 2.0f + 5.0f};
-    DrawRectangleLinesEx(scoreRect, 2, GRAY);
-    DrawText("SCORE", scoreRect.x + (scoreRect.width - MeasureText("SCORE", 40.0f)) / 2.0f, scoreRect.y + 5.0f, 40.0f, WHITE);
+    DrawRectangleLinesEx(scoreRect, LINE_THICKNESS, GRAY);
+    DrawText("SCORE", scoreRect.x + (scoreRect.width - MeasureText("SCORE", FONT_SIZE_MEDIUM)) / 2.0f, scoreRect.y + 5.0f, FONT_SIZE_MEDIUM,
+             WHITE);
     const char *scoreString = TextFormat("%09d", state.score);
-    const Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, 40.0f, 40.0f / 10.0f);
-    DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
+    const Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, FONT_SIZE_MEDIUM, FONT_SIZE_MEDIUM / 10.0f);
+    DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, FONT_SIZE_MEDIUM,
+             WHITE);
 
     if (GameGetFullRowsCount() > 0) {
       for (int row = 0; row < ROWS; row++) {
@@ -259,18 +265,18 @@ void GameDraw(void) {
       break;
     }
     const char *gameoverString = "GAME OVER";
-    const Vector2 gameoverStringMeasure = MeasureTextEx(GetFontDefault(), gameoverString, FONT_SIZE, FONT_SIZE / 10.0f);
+    const Vector2 gameoverStringMeasure = MeasureTextEx(GetFontDefault(), gameoverString, FONT_SIZE_LARGE, FONT_SIZE_LARGE / 10.0f);
     const char *tryAgainString = "Press R to try again";
-    const Vector2 tryAgainStringMeasure = MeasureTextEx(GetFontDefault(), tryAgainString, 30.0f, 30.0 / 10.0f);
+    const Vector2 tryAgainStringMeasure = MeasureTextEx(GetFontDefault(), tryAgainString, FONT_SIZE_SMALL, FONT_SIZE_SMALL / 10.0f);
 
-    const Rectangle gameoverTextRect = {playfield.x, playfield.y + playfield.height / 2.0f - BLOCK_LEN * 2.0f, BLOCK_LEN * COLUMNS,
-                                        gameoverStringMeasure.y + tryAgainStringMeasure.y + 10.0f};
+    const Rectangle gameoverTextRect = {playfield.x - LINE_THICKNESS, playfield.y + playfield.height / 2.0f - BLOCK_LEN * 2.0f,
+                                        playfield.width + 2.0f * LINE_THICKNESS, gameoverStringMeasure.y + tryAgainStringMeasure.y + 10.0f};
     DrawRectangleRec(gameoverTextRect, BLACK);
-    DrawRectangleLinesEx(gameoverTextRect, 2.0f, GRAY);
+    DrawRectangleLinesEx(gameoverTextRect, LINE_THICKNESS, GRAY);
     DrawText(gameoverString, gameoverTextRect.x + (gameoverTextRect.width - gameoverStringMeasure.x) / 2.0f, gameoverTextRect.y + 5.0f,
-             FONT_SIZE, RED);
+             FONT_SIZE_LARGE, RED);
     DrawText(tryAgainString, gameoverTextRect.x + (gameoverTextRect.width - tryAgainStringMeasure.x) / 2.0f,
-             gameoverTextRect.y + gameoverStringMeasure.y + 5.0f, 30.0f, WHITE);
+             gameoverTextRect.y + gameoverStringMeasure.y + 5.0f, FONT_SIZE_SMALL, WHITE);
     break;
   }
   }
