@@ -98,7 +98,7 @@ void GameUpdate(void) {
     for (int i = 0; i < 4; i++) {
       const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
       Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
-      state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
+      state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->shapeType, true};
     }
 
     int fullRowsCount = GameGetFullRowsCount();
@@ -200,34 +200,37 @@ void GameDraw(void) {
   }
   case SCREEN_GAMEOVER:
   case SCREEN_PLAY: {
-    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS, BLOCK_LEN * ROWS};
+    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5, BLOCK_LEN * ROWS + 2};
     // playfield without the buffer area
     const Rectangle shownPlayfield = {playfield.x, playfield.y + BUFFER_AREA, playfield.width, playfield.height - BUFFER_AREA};
 
+    DrawRectangleLinesEx((Rectangle){shownPlayfield.x - 2, shownPlayfield.y - 2.0f, shownPlayfield.width + 4, shownPlayfield.height + 2.0f},
+                         2, GRAY);
     BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
     PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y});
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
     EndScissorMode();
 
-    const Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
+    const Rectangle nextPieceRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
     PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
     DrawRectangleLinesEx(nextPieceRect, 2.0f, GRAY);
 
-    const Rectangle linesCounterRect = {playfield.x, playfield.y + 2.0f, BLOCK_LEN * COLUMNS, 2.0f * BLOCK_LEN};
+    const Rectangle linesCounterRect = {playfield.x - 2.0f, playfield.y, shownPlayfield.width + 4, 2.0f * BLOCK_LEN};
     DrawRectangleLinesEx(linesCounterRect, 2.0f, GRAY);
     const char *clearedLinesSting = TextFormat("LINES-%d", state.linesCleared);
     const Vector2 clearedLinesStringMeasure = MeasureTextEx(GetFontDefault(), clearedLinesSting, FONT_SIZE, FONT_SIZE / 10.0f);
     DrawText(clearedLinesSting, linesCounterRect.x + (linesCounterRect.width - clearedLinesStringMeasure.x) / 2.0f,
              linesCounterRect.y + (linesCounterRect.height - clearedLinesStringMeasure.y) / 2.0f, FONT_SIZE, WHITE);
 
-    const Rectangle levelRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 1.7f, BLOCK_LEN * 5.0f, BLOCK_LEN * 2.0 + 5.0f};
+    const Rectangle levelRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 1.7f, BLOCK_LEN * 5.0f, BLOCK_LEN * 2.0 + 5.0f};
     DrawRectangleLinesEx(levelRect, 2.0f, GRAY);
     DrawText("LEVEL", levelRect.x + (levelRect.width - MeasureText("LEVEL", 40.0f)) / 2.0f, levelRect.y + 5.0f, 40.0f, WHITE);
     const char *currentLevelString = TextFormat("%d", state.currentLevel);
     DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, 40.0f)) / 2.0f,
              levelRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
 
-    const Rectangle scoreRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, shownPlayfield.y, BLOCK_LEN * 6.0f, BLOCK_LEN * 2.0f + 5.0f};
+    const Rectangle scoreRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, shownPlayfield.y - 2.0f, BLOCK_LEN * 6.0f,
+                                 BLOCK_LEN * 2.0f + 5.0f};
     DrawRectangleLinesEx(scoreRect, 2, GRAY);
     DrawText("SCORE", scoreRect.x + (scoreRect.width - MeasureText("SCORE", 40.0f)) / 2.0f, scoreRect.y + 5.0f, 40.0f, WHITE);
     const char *scoreString = TextFormat("%09d", state.score);
@@ -250,8 +253,6 @@ void GameDraw(void) {
         }
       }
     }
-
-    DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
 
     // TODO: Maybe refactor this into its own function?
     if (state.screenState == SCREEN_PLAY) {
@@ -363,7 +364,7 @@ static void GameHandleInput(void) {
 
 static void GameReset(void) {
   for (int i = 0; i < ROWS * COLUMNS; i++) {
-    ((Block *)state.board)[i] = (Block){WHITE, false};
+    ((Block *)state.board)[i] = (Block){0, false};
   }
   for (int i = 0; i < KEY_TIMERS_COUNT; i++) {
     state.keyTimers[i] = 0.0f;
@@ -389,7 +390,7 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
     for (int x = 0; x < COLUMNS; x++) {
       if (board[y][x].occupied) {
         const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale((Vector2){x, y}, BLOCK_LEN), screenPosition);
-        DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, board[y][x].color);
+        PieceDrawBlock(blockPositionOnScreen, 0, board[y][x].shapeType);
       }
     }
   }

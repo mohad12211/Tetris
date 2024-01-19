@@ -1,66 +1,101 @@
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "piece.h"
 
 static const PieceType tetrominoes[] = {
     // I
-    {{0, 240, 240, 255},
-     {{{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},
+    {{{{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},
       {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}},
       {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},
       {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}}},
-     {0.5, -0.5}},
+     {0.5, -0.5},
+     0},
     // J
-    {{0, 0, 240, 255},
-     {{{{1, 2}, {2, 2}, {3, 2}, {3, 3}}},
+    {{{{{1, 2}, {2, 2}, {3, 2}, {3, 3}}},
       {{{1, 3}, {2, 1}, {2, 2}, {2, 3}}},
       {{{1, 2}, {2, 2}, {3, 2}, {1, 1}}},
       {{{3, 1}, {2, 1}, {2, 2}, {2, 3}}}},
-     {0, -1}},
+     {0, -1},
+     2},
     // L
-    {{240, 161, 0, 255},
-     {{{{1, 2}, {2, 2}, {3, 2}, {1, 3}}},
+    {{{{{1, 2}, {2, 2}, {3, 2}, {1, 3}}},
       {{{1, 1}, {2, 1}, {2, 2}, {2, 3}}},
       {{{1, 2}, {2, 2}, {3, 2}, {3, 1}}},
       {{{3, 3}, {2, 1}, {2, 2}, {2, 3}}}},
-     {0, -1}},
+     {0, -1},
+     1},
     // O
-    {{240, 240, 0, 255},
-     {{{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
+    {{{{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
       {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
       {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}},
       {{{1, 2}, {1, 3}, {2, 2}, {2, 3}}}},
-     {0.5, -1}},
+     {0.5, -1},
+     0},
     // T
-    {{162, 0, 240, 255},
-     {{{{1, 2}, {2, 2}, {3, 2}, {2, 3}}},
+    {{{{{1, 2}, {2, 2}, {3, 2}, {2, 3}}},
       {{{2, 1}, {2, 2}, {2, 3}, {1, 2}}},
       {{{1, 2}, {2, 2}, {3, 2}, {2, 1}}},
       {{{2, 1}, {2, 2}, {2, 3}, {3, 2}}}},
-     {0, -1}},
+     {0, -1},
+     0},
     // S
-    {{0, 240, 0, 255},
-     {{{{2, 2}, {2, 3}, {3, 2}, {1, 3}}},
+    {{{{{2, 2}, {2, 3}, {3, 2}, {1, 3}}},
       {{{2, 2}, {2, 1}, {3, 2}, {3, 3}}},
       {{{2, 2}, {2, 3}, {3, 2}, {1, 3}}},
       {{{2, 2}, {2, 1}, {3, 2}, {3, 3}}}},
-     {0, -1}},
+     {0, -1},
+     2},
     // Z
-    {{241, 0, 0, 255},
-     {{{{2, 2}, {2, 3}, {3, 3}, {1, 2}}},
+    {{{{{2, 2}, {2, 3}, {3, 3}, {1, 2}}},
       {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}},
       {{{2, 2}, {2, 3}, {3, 3}, {1, 2}}},
       {{{2, 3}, {2, 2}, {3, 1}, {3, 2}}}},
-     {0, -1}},
+     {0, -1},
+     1},
 };
+
+static const Color colorPalettes[1][2] = {{{0, 88, 248, 255}, {60, 188, 252, 255}}};
+
+void PieceDrawBlock(Vector2 position, int paletteIndex, int shapeType) {
+  const Color *colorPalette = colorPalettes[paletteIndex];
+  position.x += 5;
+  switch (shapeType) {
+  case 0: {
+    DrawRectangle(position.x, position.y, BLOCK_LEN - 5, BLOCK_LEN - 5, colorPalette[0]);
+    DrawRectangle(position.x + 5, position.y + 5, BLOCK_LEN - 15, BLOCK_LEN - 15, WHITE);
+    DrawRectangle(position.x, position.y, 5, 5, WHITE);
+    break;
+  }
+  case 1: {
+    DrawRectangle(position.x, position.y, BLOCK_LEN - 5, BLOCK_LEN - 5, colorPalette[1]);
+    DrawRectangle(position.x, position.y, 5, 5, WHITE);
+    DrawRectangle(position.x + 5, position.y + 5, 5 * 2, 5 * 2, WHITE);
+    DrawRectangle(position.x + 5 * 2, position.y + 5 * 2, 5, 5, colorPalette[1]);
+    break;
+  }
+  case 2: {
+    DrawRectangle(position.x, position.y, BLOCK_LEN - 5, BLOCK_LEN - 5, colorPalette[0]);
+    DrawRectangle(position.x, position.y, 5, 5, WHITE);
+    DrawRectangle(position.x + 5, position.y + 5, 5 * 2, 5 * 2, WHITE);
+    DrawRectangle(position.x + 5 * 2, position.y + 5 * 2, 5, 5, colorPalette[0]);
+    break;
+  }
+  default: {
+    fprintf(stderr, "Unknown block shape type: %d", shapeType);
+    exit(1);
+  }
+  }
+}
 
 void PieceDraw(const Piece *piece, const Vector2 screenPosition) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     const Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN), screenPosition);
-    DrawRectangleV(blockPositionOnScreen, BLOCK_SIZE, piece->tetromino->color);
+    PieceDrawBlock(blockPositionOnScreen, 0, piece->tetromino->shapeType);
   }
 }
 

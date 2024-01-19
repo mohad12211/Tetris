@@ -11,5 +11,6 @@ void PieceMoveLeft(Piece *piece, const Block board[ROWS][COLUMNS]);
 void PieceMoveRight(Piece *piece, const Block board[ROWS][COLUMNS]);
 bool PieceMoveDown(Piece *piece, const Block board[ROWS][COLUMNS]);
 Piece PieceGetRandom(const PieceType *previousPieceType);
+void PieceDrawBlock(const Vector2 position, int paletteIndex, int shapeType);
 
 #endif // PIECE_H

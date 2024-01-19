@@ -45,10 +45,10 @@ typedef struct {
 } PieceConfiguration;
 
 typedef struct {
-  Color color;
   PieceConfiguration rotations[4];
   // the offset required so that the piece is centered when displayed on the "next piece" rectangle
   Vector2 displayOffset;
+  int shapeType;
 } PieceType;
 
 typedef struct {
@@ -58,7 +58,7 @@ typedef struct {
 } Piece;
 
 typedef struct {
-  Color color;
+  int shapeType;
   bool occupied;
 } Block;
 
