@@ -388,7 +388,6 @@ static void GameReset(void) {
   state.ARETimer = 0.0f;
   state.animationTimer = 0.0f;
   state.isMusicPaused = false;
-  // SeekMusicStream(state.music[state.currentMusicIndex], 0.0f);
 }
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
