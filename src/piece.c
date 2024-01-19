@@ -57,7 +57,11 @@ static const PieceType tetrominoes[] = {
      1},
 };
 
-static const Color colorPalettes[1][2] = {{{0, 88, 248, 255}, {60, 188, 252, 255}}};
+static const Color colorPalettes[10][2] = {{{0, 88, 248, 255}, {60, 188, 252, 255}},   {{0, 168, 0, 255}, {184, 248, 24, 255}},
+                                           {{216, 0, 204, 255}, {248, 120, 248, 255}}, {{0, 88, 248, 255}, {88, 216, 84, 255}},
+                                           {{228, 0, 88, 255}, {88, 248, 152, 255}},   {{88, 248, 152, 255}, {104, 136, 252, 255}},
+                                           {{248, 56, 0, 255}, {124, 124, 124, 255}},  {{104, 68, 252, 255}, {168, 0, 32, 255}},
+                                           {{0, 88, 248, 255}, {248, 56, 0, 255}},     {{248, 56, 0, 255}, {234, 158, 34, 255}}};
 
 void PieceDrawBlock(Vector2 position, int paletteIndex, int shapeType) {
   const Color *colorPalette = colorPalettes[paletteIndex];
@@ -90,12 +94,12 @@ void PieceDrawBlock(Vector2 position, int paletteIndex, int shapeType) {
   }
 }
 
-void PieceDraw(const Piece *piece, const Vector2 screenPosition) {
+void PieceDraw(const Piece *piece, const Vector2 screenPosition, int paletteIndex) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     const Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
     const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN), screenPosition);
-    PieceDrawBlock(blockPositionOnScreen, 0, piece->tetromino->shapeType);
+    PieceDrawBlock(blockPositionOnScreen, paletteIndex, piece->tetromino->shapeType);
   }
 }
 

@@ -207,12 +207,12 @@ void GameDraw(void) {
     DrawRectangleLinesEx((Rectangle){shownPlayfield.x - 2, shownPlayfield.y - 2.0f, shownPlayfield.width + 4, shownPlayfield.height + 2.0f},
                          2, GRAY);
     BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
-    PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y});
+    PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y}, state.currentLevel % 10);
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
     EndScissorMode();
 
     const Rectangle nextPieceRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
-    PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y});
+    PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y}, state.currentLevel % 10);
     DrawRectangleLinesEx(nextPieceRect, 2.0f, GRAY);
 
     const Rectangle linesCounterRect = {playfield.x - 2.0f, playfield.y, shownPlayfield.width + 4, 2.0f * BLOCK_LEN};
@@ -390,7 +390,7 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
     for (int x = 0; x < COLUMNS; x++) {
       if (board[y][x].occupied) {
         const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale((Vector2){x, y}, BLOCK_LEN), screenPosition);
-        PieceDrawBlock(blockPositionOnScreen, 0, board[y][x].shapeType);
+        PieceDrawBlock(blockPositionOnScreen, state.currentLevel % 10, board[y][x].shapeType);
       }
     }
   }
