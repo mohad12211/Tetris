@@ -13,6 +13,7 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition);
 static void GameReset(void);
 static void GameUpdateMusic(void);
 static void GameHandleInput(void);
+static int GameGetFullRowsCount(void);
 
 static const int scoringTable[4] = {40, 100, 300, 1200};
 static const float fallingSpeedTable[30] = {0.800f, 0.715f, 0.632f, 0.549f, 0.466f, 0.383f, 0.300f, 0.216f, 0.133f, 0.100f,
@@ -94,18 +95,19 @@ void GameUpdate(void) {
     }
 
     // Clear rows and update score and generate next piece
-    state.fallingTimer = 0.0f;
-    state.ARETimer = 0.0f;
-    state.score += MAX(0, state.softDropCounter - 1);
-    state.softDropCounter = 0;
     for (int i = 0; i < 4; i++) {
       const PieceConfiguration *blocks = &state.currentPiece.tetromino->rotations[state.currentPiece.rotationIndex];
       Vector2 blockPosition = Vector2Add(blocks->points[i], state.currentPiece.position);
       state.board[(int)blockPosition.y][(int)blockPosition.x] = (Block){state.currentPiece.tetromino->color, true};
     }
 
+    int fullRowsCount = GameGetFullRowsCount();
+    if (state.animationTimer <= 0.5f && fullRowsCount > 0) {
+      state.animationTimer += dt;
+      break;
+    }
+
     // Clear full rows
-    int clearedRows = 0;
     for (int row = 0; row < ROWS; row++) {
       bool isFull = true;
       for (int column = 0; column < COLUMNS; column++) {
@@ -115,7 +117,6 @@ void GameUpdate(void) {
         }
       }
       if (isFull) {
-        clearedRows++;
         for (int column = 0; column < COLUMNS; column++) {
           state.board[row][column].occupied = false;
         }
@@ -129,13 +130,13 @@ void GameUpdate(void) {
     }
 
     // Update score and lines cleared
-    if (clearedRows > 0) {
-      state.linesCleared += clearedRows;
+    if (fullRowsCount > 0) {
+      state.linesCleared += fullRowsCount;
       const int transitionPoint = (state.startingLevel + 1) * 10;
       if (state.linesCleared >= transitionPoint) {
         state.currentLevel = (state.linesCleared - transitionPoint) / 10 + state.startingLevel + 1;
       }
-      state.score += scoringTable[clearedRows - 1] * (state.currentLevel + 1);
+      state.score += scoringTable[fullRowsCount - 1] * (state.currentLevel + 1);
     }
 
     // Check if player lost
@@ -150,6 +151,11 @@ void GameUpdate(void) {
     }
 
     // Generate next piece
+    state.score += MAX(0, state.softDropCounter - 1);
+    state.softDropCounter = 0;
+    state.fallingTimer = 0.0f;
+    state.ARETimer = 0.0f;
+    state.animationTimer = 0.0f;
     state.currentPiece = state.nextPiece;
     state.currentPiece.position = INITIAL_BOARD_POSITION;
     state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
@@ -198,7 +204,6 @@ void GameDraw(void) {
     BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
     PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y});
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
-    DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
     EndScissorMode();
 
     const Rectangle nextPieceRect = {(WIDTH + BLOCK_LEN * COLUMNS) / 2.0f - 2.0f, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
@@ -225,6 +230,25 @@ void GameDraw(void) {
     const char *scoreString = TextFormat("%09d", state.score);
     const Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, 40.0f, 40.0f / 10.0f);
     DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, 40.0f, WHITE);
+
+    if (GameGetFullRowsCount() > 0) {
+      for (int row = 0; row < ROWS; row++) {
+        bool isFull = true;
+        for (int column = 0; column < COLUMNS; column++) {
+          if (!state.board[row][column].occupied) {
+            isFull = false;
+            break;
+          }
+        }
+        if (isFull) {
+          int w = ((int)(state.animationTimer * 10) + 1) * BLOCK_LEN;
+          DrawRectangle(playfield.x + (5 * BLOCK_LEN - w), playfield.y + row * BLOCK_LEN, w, BLOCK_LEN, BLACK);
+          DrawRectangle(playfield.x + 5 * BLOCK_LEN, playfield.y + row * BLOCK_LEN, w, BLOCK_LEN, BLACK);
+        }
+      }
+    }
+
+    DrawRectangleLinesEx(shownPlayfield, 2, GRAY);
 
     // TODO: Maybe refactor this into its own function?
     if (state.screenState == SCREEN_PLAY) {
@@ -352,6 +376,7 @@ static void GameReset(void) {
   state.fallingTimer = ENTRY_DELAY;
   state.linesCleared = 0;
   state.ARETimer = 0.0f;
+  state.animationTimer = 0.0f;
   state.isMusicPaused = false;
   // SeekMusicStream(state.music[state.currentMusicIndex], 0.0f);
 }
@@ -365,4 +390,18 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
       }
     }
   }
+}
+
+static int GameGetFullRowsCount(void) {
+  int clearedRows = 0;
+  for (int row = 0; row < ROWS; row++) {
+    for (int column = 0; column < COLUMNS; column++) {
+      if (!state.board[row][column].occupied) {
+        goto continue_outer;
+      }
+    }
+    clearedRows++;
+  continue_outer: {}
+  }
+  return clearedRows;
 }

@@ -69,6 +69,7 @@ typedef struct {
   float fallingTimer;
   float keyTimers[KEY_TIMERS_COUNT];
   float ARETimer;
+  float animationTimer;
   int linesCleared;
   int startingLevel;
   int currentLevel;
