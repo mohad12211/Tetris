@@ -213,7 +213,7 @@ void GameDraw(void) {
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
     EndScissorMode();
 
-    const Rectangle nextPieceRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
+    const Rectangle nextPieceRect = {shownPlayfield.x + shownPlayfield.width, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
     PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y}, state.currentLevel % 10);
     DrawRectangleLinesEx(nextPieceRect, LINE_THICKNESS, GRAY);
 
@@ -225,7 +225,7 @@ void GameDraw(void) {
     DrawText(clearedLinesSting, linesCounterRect.x + (linesCounterRect.width - clearedLinesStringMeasure.x) / 2.0f,
              linesCounterRect.y + (linesCounterRect.height - clearedLinesStringMeasure.y) / 2.0f, FONT_SIZE_LARGE, WHITE);
 
-    const Rectangle levelRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, HEIGHT / 1.7f, BLOCK_LEN * 5.0f, BLOCK_LEN * 2.0 + 5.0f};
+    const Rectangle levelRect = {shownPlayfield.x + shownPlayfield.width, HEIGHT / 1.7f, BLOCK_LEN * 5.0f, BLOCK_LEN * 2.0 + 5.0f};
     DrawRectangleLinesEx(levelRect, LINE_THICKNESS, GRAY);
     DrawText("LEVEL", levelRect.x + (levelRect.width - MeasureText("LEVEL", FONT_SIZE_MEDIUM)) / 2.0f, levelRect.y + 5.0f, FONT_SIZE_MEDIUM,
              WHITE);
@@ -233,7 +233,7 @@ void GameDraw(void) {
     DrawText(currentLevelString, levelRect.x + (levelRect.width - MeasureText(currentLevelString, FONT_SIZE_MEDIUM)) / 2.0f,
              levelRect.y + BLOCK_LEN + 5.0f, FONT_SIZE_MEDIUM, WHITE);
 
-    const Rectangle scoreRect = {(WIDTH + shownPlayfield.width) / 2.0f + 3.0f, shownPlayfield.y - LINE_THICKNESS, BLOCK_LEN * 6.0f,
+    const Rectangle scoreRect = {shownPlayfield.x + shownPlayfield.width, shownPlayfield.y - LINE_THICKNESS, BLOCK_LEN * 6.0f,
                                  BLOCK_LEN * 2.0f + 5.0f};
     DrawRectangleLinesEx(scoreRect, LINE_THICKNESS, GRAY);
     DrawText("SCORE", scoreRect.x + (scoreRect.width - MeasureText("SCORE", FONT_SIZE_MEDIUM)) / 2.0f, scoreRect.y + 5.0f, FONT_SIZE_MEDIUM,
