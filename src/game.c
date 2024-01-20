@@ -322,6 +322,7 @@ static void GameUpdateMusic(void) {
     state.currentMusicIndex = (state.currentMusicIndex + 1) % MUSIC_COUNT;
     PlayMusicStream(state.music[state.currentMusicIndex]);
   }
+  state.isMusicPaused = false;
 }
 
 static void GameHandleInput(void) {
@@ -387,7 +388,6 @@ static void GameReset(void) {
   state.linesCleared = 0;
   state.ARETimer = 0.0f;
   state.animationTimer = 0.0f;
-  state.isMusicPaused = false;
 }
 
 static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
