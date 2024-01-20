@@ -63,28 +63,30 @@ static const Color colorPalettes[10][2] = {{{0, 88, 248, 255}, {60, 188, 252, 25
                                            {{248, 56, 0, 255}, {124, 124, 124, 255}},  {{104, 68, 252, 255}, {110, 0, 64, 255}},
                                            {{0, 88, 248, 255}, {248, 56, 0, 255}},     {{248, 56, 0, 255}, {234, 158, 34, 255}}};
 
-void PieceDrawBlock(Vector2 position, int paletteIndex, int shapeType) {
+void PieceDrawBlock(Vector2 position, int paletteIndex, int shapeType, float scale) {
   const Color *colorPalette = colorPalettes[paletteIndex];
-  position.x += 5;
+  float scaledLen = BLOCK_LEN * scale;
+  float smallLen = (scaledLen / 8.0f);
+  position.x += smallLen;
   switch (shapeType) {
   case 0: {
-    DrawRectangle(position.x, position.y, BLOCK_LEN - 5, BLOCK_LEN - 5, colorPalette[0]);
-    DrawRectangle(position.x + 5, position.y + 5, BLOCK_LEN - 15, BLOCK_LEN - 15, WHITE);
-    DrawRectangle(position.x, position.y, 5, 5, WHITE);
+    DrawRectangle(position.x, position.y, scaledLen - smallLen, scaledLen - smallLen, colorPalette[0]);
+    DrawRectangle(position.x + smallLen, position.y + smallLen, scaledLen - smallLen * 3, scaledLen - smallLen * 3, WHITE);
+    DrawRectangle(position.x, position.y, smallLen, smallLen, WHITE);
     break;
   }
   case 1: {
-    DrawRectangle(position.x, position.y, BLOCK_LEN - 5, BLOCK_LEN - 5, colorPalette[1]);
-    DrawRectangle(position.x, position.y, 5, 5, WHITE);
-    DrawRectangle(position.x + 5, position.y + 5, 5 * 2, 5 * 2, WHITE);
-    DrawRectangle(position.x + 5 * 2, position.y + 5 * 2, 5, 5, colorPalette[1]);
+    DrawRectangle(position.x, position.y, scaledLen - smallLen, scaledLen - smallLen, colorPalette[1]);
+    DrawRectangle(position.x, position.y, smallLen, smallLen, WHITE);
+    DrawRectangle(position.x + smallLen, position.y + smallLen, smallLen * 2, smallLen * 2, WHITE);
+    DrawRectangle(position.x + smallLen * 2, position.y + smallLen * 2, smallLen, smallLen, colorPalette[1]);
     break;
   }
   case 2: {
-    DrawRectangle(position.x, position.y, BLOCK_LEN - 5, BLOCK_LEN - 5, colorPalette[0]);
-    DrawRectangle(position.x, position.y, 5, 5, WHITE);
-    DrawRectangle(position.x + 5, position.y + 5, 5 * 2, 5 * 2, WHITE);
-    DrawRectangle(position.x + 5 * 2, position.y + 5 * 2, 5, 5, colorPalette[0]);
+    DrawRectangle(position.x, position.y, scaledLen - smallLen, scaledLen - smallLen, colorPalette[0]);
+    DrawRectangle(position.x, position.y, smallLen, smallLen, WHITE);
+    DrawRectangle(position.x + smallLen, position.y + smallLen, smallLen * 2, smallLen * 2, WHITE);
+    DrawRectangle(position.x + smallLen * 2, position.y + smallLen * 2, smallLen, smallLen, colorPalette[0]);
     break;
   }
   default: {
@@ -94,12 +96,12 @@ void PieceDrawBlock(Vector2 position, int paletteIndex, int shapeType) {
   }
 }
 
-void PieceDraw(const Piece *piece, const Vector2 screenPosition, int paletteIndex) {
+void PieceDraw(const Piece *piece, const Vector2 screenPosition, int paletteIndex, float scale) {
   for (int i = 0; i < 4; i++) {
     const PieceConfiguration *blocks = &piece->tetromino->rotations[piece->rotationIndex];
     const Vector2 blockPosition = Vector2Add(blocks->points[i], piece->position);
-    const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN), screenPosition);
-    PieceDrawBlock(blockPositionOnScreen, paletteIndex, piece->tetromino->shapeType);
+    const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale(blockPosition, BLOCK_LEN * scale), screenPosition);
+    PieceDrawBlock(blockPositionOnScreen, paletteIndex, piece->tetromino->shapeType, scale);
   }
 }
 

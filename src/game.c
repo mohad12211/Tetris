@@ -201,7 +201,7 @@ void GameDraw(void) {
   }
   case SCREEN_GAMEOVER:
   case SCREEN_PLAY: {
-    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f + BLOCK_LEN / 1.2f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5,
+    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5,
                                  BLOCK_LEN * ROWS + LINE_THICKNESS};
     // playfield without the buffer area
     const Rectangle shownPlayfield = {playfield.x, playfield.y + BUFFER_AREA, playfield.width, playfield.height - BUFFER_AREA};
@@ -210,12 +210,12 @@ void GameDraw(void) {
                                      shownPlayfield.width + 2.0 * LINE_THICKNESS, shownPlayfield.height + LINE_THICKNESS},
                          LINE_THICKNESS, GRAY);
     BeginScissorMode(shownPlayfield.x, shownPlayfield.y, shownPlayfield.width, shownPlayfield.height);
-    PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y}, state.currentLevel % 10);
+    PieceDraw(&state.currentPiece, (Vector2){playfield.x, playfield.y}, state.currentLevel % 10, 1);
     GameDrawBoard(state.board, (Vector2){playfield.x, playfield.y});
     EndScissorMode();
 
     const Rectangle nextPieceRect = {shownPlayfield.x + shownPlayfield.width, HEIGHT / 3.0f, BLOCK_LEN * 5.0f, BLOCK_LEN * 4.0f};
-    PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y}, state.currentLevel % 10);
+    PieceDraw(&state.nextPiece, (Vector2){nextPieceRect.x, nextPieceRect.y}, state.currentLevel % 10, 1);
     DrawRectangleLinesEx(nextPieceRect, LINE_THICKNESS, GRAY);
 
     const Rectangle linesCounterRect = {playfield.x - LINE_THICKNESS, playfield.y, shownPlayfield.width + 2.0f * LINE_THICKNESS,
@@ -244,24 +244,21 @@ void GameDraw(void) {
     DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, FONT_SIZE_MEDIUM,
              WHITE);
 
+    // TODO: remove magic numbers
     const char *statisticsString = "STATISTICS";
-    const Vector2 statisticsStringMeasure = MeasureTextEx(GetFontDefault(), statisticsString, FONT_SIZE_MEDIUM, FONT_SIZE_MEDIUM / 10.0f);
-    const float width = statisticsStringMeasure.x + 30.0f;
-    const Rectangle statisticsRect = {shownPlayfield.x - width, playfield.y, width, playfield.height};
+    const Vector2 statisticsStringMeasure = MeasureTextEx(GetFontDefault(), statisticsString, FONT_SIZE_SMALL, FONT_SIZE_SMALL / 10.0f);
+    const float width = statisticsStringMeasure.x + 20.0f;
+    const Rectangle statisticsRect = {shownPlayfield.x - width, shownPlayfield.y - LINE_THICKNESS, width, playfield.height / 1.6f};
     DrawRectangleLinesEx(statisticsRect, LINE_THICKNESS, GRAY);
-    DrawText(statisticsString, statisticsRect.x + (statisticsRect.width - statisticsStringMeasure.x) / 2.0f, statisticsRect.y + 20.0f,
-             FONT_SIZE_MEDIUM, WHITE);
+    DrawText(statisticsString, statisticsRect.x + (statisticsRect.width - statisticsStringMeasure.x) / 2.0f, statisticsRect.y + 10.0f,
+             FONT_SIZE_SMALL, WHITE);
 
-    // TODO: make statistics pieces smaller
-    // this involves changing the `PieceDraw` function and `PieceDrawBlock` function to use ratios somehow...
     for (int i = 0; i < PIECE_COUNT; i++) {
       Piece piece = {&tetrominoes[i], tetrominoes[i].displayOffset, INITIAL_ROTATION};
-      if (i == 0) {
-        piece.position.x -= 0.5; // looks better like this lol
-      }
-      PieceDraw(&piece, (Vector2){statisticsRect.x + 10.0f, statisticsRect.y + (3 * BLOCK_LEN) * i + 20.0f}, state.currentLevel % 10);
-      DrawText(TextFormat("%03d", state.statistics[i]), statisticsRect.x + 5 * BLOCK_LEN,
-               statisticsRect.y + (3 * BLOCK_LEN) * (i) + 1.5 * BLOCK_LEN + 20.0f, FONT_SIZE_MEDIUM, WHITE);
+      PieceDraw(&piece, (Vector2){statisticsRect.x + 10.0f, statisticsRect.y + (3 * BLOCK_LEN * 0.6f) * i + BLOCK_LEN * 0.6},
+                state.currentLevel % 10, 0.6f);
+      DrawText(TextFormat("%03d", state.statistics[i]), statisticsRect.x + 5 * BLOCK_LEN * 0.7f,
+               statisticsRect.y + (3 * BLOCK_LEN * 0.6f) * (i) + 1.4 * BLOCK_LEN, FONT_SIZE_SMALL, WHITE);
     }
 
     if (GameGetFullRowsCount() > 0) {
@@ -420,7 +417,7 @@ static void GameDrawBoard(Block board[ROWS][COLUMNS], Vector2 screenPosition) {
     for (int x = 0; x < COLUMNS; x++) {
       if (board[y][x].occupied) {
         const Vector2 blockPositionOnScreen = Vector2Add(Vector2Scale((Vector2){x, y}, BLOCK_LEN), screenPosition);
-        PieceDrawBlock(blockPositionOnScreen, state.currentLevel % 10, board[y][x].shapeType);
+        PieceDrawBlock(blockPositionOnScreen, state.currentLevel % 10, board[y][x].shapeType, 1);
       }
     }
   }
