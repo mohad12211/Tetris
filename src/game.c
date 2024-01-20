@@ -160,6 +160,7 @@ void GameUpdate(void) {
     state.ARETimer = 0.0f;
     state.animationTimer = 0.0f;
     state.currentPiece = state.nextPiece;
+    state.statistics[(state.currentPiece.tetromino - tetrominoes)]++;
     state.currentPiece.position = INITIAL_BOARD_POSITION;
     state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
     state.keyTimers[KEY_DOWN_TIMER] = KEY_DOWN_TIMER_SPEED + 1.0f;
@@ -200,7 +201,7 @@ void GameDraw(void) {
   }
   case SCREEN_GAMEOVER:
   case SCREEN_PLAY: {
-    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5,
+    const Rectangle playfield = {(WIDTH - BLOCK_LEN * COLUMNS) / 2.0f + BLOCK_LEN / 1.2f, HEIGHT / 20.0f, BLOCK_LEN * COLUMNS + 5,
                                  BLOCK_LEN * ROWS + LINE_THICKNESS};
     // playfield without the buffer area
     const Rectangle shownPlayfield = {playfield.x, playfield.y + BUFFER_AREA, playfield.width, playfield.height - BUFFER_AREA};
@@ -242,6 +243,26 @@ void GameDraw(void) {
     const Vector2 scoreStringMeasure = MeasureTextEx(GetFontDefault(), scoreString, FONT_SIZE_MEDIUM, FONT_SIZE_MEDIUM / 10.0f);
     DrawText(scoreString, scoreRect.x + (scoreRect.width - scoreStringMeasure.x) / 2.0f, scoreRect.y + BLOCK_LEN + 5.0f, FONT_SIZE_MEDIUM,
              WHITE);
+
+    const char *statisticsString = "STATISTICS";
+    const Vector2 statisticsStringMeasure = MeasureTextEx(GetFontDefault(), statisticsString, FONT_SIZE_MEDIUM, FONT_SIZE_MEDIUM / 10.0f);
+    const float width = statisticsStringMeasure.x + 30.0f;
+    const Rectangle statisticsRect = {shownPlayfield.x - width, playfield.y, width, playfield.height};
+    DrawRectangleLinesEx(statisticsRect, LINE_THICKNESS, GRAY);
+    DrawText(statisticsString, statisticsRect.x + (statisticsRect.width - statisticsStringMeasure.x) / 2.0f, statisticsRect.y + 20.0f,
+             FONT_SIZE_MEDIUM, WHITE);
+
+    // TODO: make statistics pieces smaller
+    // this involves changing the `PieceDraw` function and `PieceDrawBlock` function to use ratios somehow...
+    for (int i = 0; i < PIECE_COUNT; i++) {
+      Piece piece = {&tetrominoes[i], tetrominoes[i].displayOffset, INITIAL_ROTATION};
+      if (i == 0) {
+        piece.position.x -= 0.5; // looks better like this lol
+      }
+      PieceDraw(&piece, (Vector2){statisticsRect.x + 10.0f, statisticsRect.y + (3 * BLOCK_LEN) * i + 20.0f}, state.currentLevel % 10);
+      DrawText(TextFormat("%03d", state.statistics[i]), statisticsRect.x + 5 * BLOCK_LEN,
+               statisticsRect.y + (3 * BLOCK_LEN) * (i) + 1.5 * BLOCK_LEN + 20.0f, FONT_SIZE_MEDIUM, WHITE);
+    }
 
     if (GameGetFullRowsCount() > 0) {
       for (int row = 0; row < ROWS; row++) {
@@ -376,12 +397,16 @@ static void GameReset(void) {
   for (int i = 0; i < KEY_TIMERS_COUNT; i++) {
     state.keyTimers[i] = 0.0f;
   }
+  for (int i = 0; i < PIECE_COUNT; i++) {
+    state.statistics[i] = 0;
+  }
   state.screenState = SCREEN_START;
   state.startingLevel = 0;
   state.currentLevel = 0;
   state.score = 0;
   state.isPaused = false;
   state.currentPiece = PieceGetRandom(NULL);
+  state.statistics[(state.currentPiece.tetromino - tetrominoes)]++;
   state.currentPiece.position = INITIAL_BOARD_POSITION;
   state.nextPiece = PieceGetRandom(state.currentPiece.tetromino);
   state.fallingTimer = ENTRY_DELAY;

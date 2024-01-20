@@ -5,7 +5,7 @@
 
 #include "piece.h"
 
-static const PieceType tetrominoes[] = {
+const PieceType tetrominoes[] = {
     // I
     {{{{{0, 2}, {1, 2}, {2, 2}, {3, 2}}},
       {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}},

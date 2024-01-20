@@ -82,6 +82,7 @@ typedef struct {
   Music music[MUSIC_COUNT];
   Sound sounds[SOUND_COUNT];
   int currentMusicIndex;
+  int statistics[7];
   bool isPaused;
   bool isMusicPaused;
 } GameState;
@@ -90,5 +91,7 @@ void GameCleanup(void);
 void GameInit(void);
 void GameUpdate(void);
 void GameDraw(void);
+
+extern const PieceType tetrominoes[];
 
 #endif // GAME_H
