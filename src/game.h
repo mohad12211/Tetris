@@ -40,6 +40,7 @@ typedef enum {
 typedef enum {
   SOUND_GAMEOVER,
   SOUND_LINECLEAR,
+  SOUND_TETRIS,
   SOUND_COUNT,
 } SOUNDS;
 
