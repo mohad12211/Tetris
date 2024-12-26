@@ -309,7 +309,7 @@ void GameDraw(void) {
 void GameInit(void) {
   for (int i = 0; i < MUSIC_COUNT; i++) {
     state.music[i] = LoadMusicStream(TextFormat("resources/Music_%d.ogg", i + 1));
-    if (!IsMusicReady(state.music[i])) {
+    if (!IsMusicValid(state.music[i])) {
       fprintf(stderr, "Coudln't load file: `resources/Music_%d.ogg`", i + 1);
       exit(1);
     }
@@ -318,7 +318,7 @@ void GameInit(void) {
   }
   for (int i = 0; i < SOUND_COUNT; i++) {
     state.sounds[i] = LoadSound(TextFormat("resources/Sound_%d.ogg", i + 1));
-    if (!IsSoundReady(state.sounds[i])) {
+    if (!IsSoundValid(state.sounds[i])) {
       fprintf(stderr, "Coudln't load file: `resources/Sound_%d.ogg`", i + 1);
       exit(1);
     }
